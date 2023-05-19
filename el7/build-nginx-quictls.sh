@@ -38,7 +38,7 @@ _dl_nginx() {
     tar -xof quic.tar.gz
     sleep 1
     rm -f quic.tar.gz
-    mv -f nginx-* nginx
+    mv -f ngin* nginx
     sleep 1
     [[ -e nginx/configure ]] || /bin/cp -f nginx/auto/configure nginx/configure
 
@@ -46,7 +46,7 @@ _dl_nginx() {
     _pcre2_ver="$(wget -qO- 'https://github.com/PCRE2Project/pcre2/releases' | grep -i 'pcre2-[1-9]' | sed 's|"|\n|g' | grep -i '^/PCRE2Project/pcre2/tree' | sed 's|.*/pcre2-||g' | sed 's|\.tar.*||g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${_pcre2_ver}/pcre2-${_pcre2_ver}.tar.bz2"
     sleep 1
-    tar -xf pcre2-${_pcre2_ver}.tar.*
+    tar -xof pcre2-*.tar.*
     sleep 1
     rm -f pcre2-*.tar*
     mv -f pcre2-* pcre2
@@ -104,7 +104,7 @@ _build_zlib() {
     cd "${_tmp_dir}"
     _zlib_ver="$(wget -qO- 'https://www.zlib.net/' | grep 'zlib-[1-9].*\.tar\.' | sed -e 's|"|\n|g' | grep '^zlib-[1-9]' | sed -e 's|\.tar.*||g' -e 's|zlib-||g' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://www.zlib.net/zlib-${_zlib_ver}.tar.gz"
-    tar -xof zlib-${_zlib_ver}.tar.*
+    tar -xof zlib-*.tar.*
     sleep 1
     rm -f zlib-*.tar*
     cd zlib-*
@@ -121,6 +121,7 @@ _build_zlib() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -150,12 +151,11 @@ _build_zlib() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
-    install -m 0755 -d usr/lib64/nginx/private
-    /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    sleep 1
     /bin/rm -f /usr/lib64/libz.so*
     /bin/rm -f /usr/lib64/libz.a
-    sleep 1
+    install -m 0755 -d usr/lib64/nginx/private
+    /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -194,6 +194,7 @@ _build_xz() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -223,10 +224,10 @@ _build_xz() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
+    rm -f /usr/lib64/liblzma.*
     install -m 0755 -d usr/lib64/nginx/private
     cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    rm -f /usr/lib64/liblzma.*
-    sleep 1
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -242,7 +243,7 @@ _build_libxml2() {
     cd "${_tmp_dir}"
     _libxml2_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxml2/-/tags' | grep '\.tar\.' | sed 's|"|\n|g' | grep -i '^/GNOME/libxml2/.*/libxml2-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxml2-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://download.gnome.org/sources/libxml2/${_libxml2_ver%.*}/libxml2-${_libxml2_ver}.tar.xz"
-    tar -xof libxml2-${_libxml2_ver}.tar.*
+    tar -xof libxml2-*.tar.*
     sleep 1
     rm -f libxml2-*.tar*
     cd libxml2-*
@@ -269,6 +270,7 @@ _build_libxml2() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -298,10 +300,10 @@ _build_libxml2() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
+    rm -f /usr/lib64/libxml2.*
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    rm -f /usr/lib64/libxml2.*
-    sleep 1
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -343,6 +345,7 @@ _build_libxslt() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -372,11 +375,11 @@ _build_libxslt() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
-    install -m 0755 -d usr/lib64/nginx/private
-    /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
     rm -f /usr/lib64/libxslt.*
     rm -f /usr/lib64/libexslt.*
-    sleep 1
+    install -m 0755 -d usr/lib64/nginx/private
+    /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -413,6 +416,7 @@ _build_brotli() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -444,7 +448,7 @@ _build_brotli() {
     echo
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    sleep 1
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -482,6 +486,7 @@ _build_libmaxminddb() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -513,7 +518,7 @@ _build_libmaxminddb() {
     echo
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    sleep 1
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -529,7 +534,7 @@ _build_pcre2() {
     cd "${_tmp_dir}"
     _pcre2_ver="$(wget -qO- 'https://github.com/PCRE2Project/pcre2/releases' | grep -i 'pcre2-[1-9]' | sed 's|"|\n|g' | grep -i '^/PCRE2Project/pcre2/tree' | sed 's|.*/pcre2-||g' | sed 's|\.tar.*||g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${_pcre2_ver}/pcre2-${_pcre2_ver}.tar.bz2"
-    tar -xof pcre2-${_pcre2_ver}.tar.*
+    tar -xof pcre2-*.tar.*
     sleep 1
     rm -f pcre2-*.tar*
     cd pcre2-*
@@ -556,6 +561,7 @@ _build_pcre2() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -587,7 +593,7 @@ _build_pcre2() {
     echo
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    sleep 1
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -635,6 +641,7 @@ _build_openssl30quictls() {
         exit 1
     else
         rm -fr lib64
+        rm -fr lib
         chown -R root:root ./
     fi
     find usr/ -type f -iname '*.la' -delete
@@ -671,7 +678,7 @@ _build_openssl30quictls() {
     rm -fr /usr/include/openssl
     rm -fr /usr/local/openssl-1.1.1
     rm -f /etc/ld.so.conf.d/openssl-1.1.1.conf
-    sleep 1
+    sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
@@ -709,7 +716,7 @@ cd nginx
 getent group nginx >/dev/null || groupadd -r nginx
 getent passwd nginx >/dev/null || useradd -r -d /var/lib/nginx -g nginx -s /usr/sbin/nologin -c "Nginx web server" nginx
 
-_vmajor=5
+_vmajor=6
 _vminor=1
 _vpatch=2
 _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
@@ -720,8 +727,8 @@ sed 's@"nginx/"@"gws-v"@g' -i src/core/nginx.h
 sed 's@Server: nginx@Server: gws@g' -i src/http/ngx_http_header_filter_module.c
 sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
 
-_http_module_args="$(./auto/configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-_stream_module_args="$(./auto/configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+_http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+_stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
 
 bash /opt/gcc/set-static-libstdcxx
 
