@@ -151,10 +151,10 @@ _build_zlib() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
-    /bin/rm -f /usr/lib64/libz.so*
-    /bin/rm -f /usr/lib64/libz.a
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
+    /bin/rm -f /usr/lib64/libz.so*
+    /bin/rm -f /usr/lib64/libz.a
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -224,9 +224,9 @@ _build_xz() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
-    rm -f /usr/lib64/liblzma.*
     install -m 0755 -d usr/lib64/nginx/private
     cp -af usr/lib64/*.so* usr/lib64/nginx/private/
+    rm -f /usr/lib64/liblzma.*
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -300,9 +300,9 @@ _build_libxml2() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
-    rm -f /usr/lib64/libxml2.*
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
+    rm -f /usr/lib64/libxml2.*
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -375,10 +375,10 @@ _build_libxslt() {
         find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
     fi
     echo
-    rm -f /usr/lib64/libxslt.*
-    rm -f /usr/lib64/libexslt.*
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
+    rm -f /usr/lib64/libxslt.*
+    rm -f /usr/lib64/libexslt.*
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -687,14 +687,13 @@ _build_openssl30quictls() {
     /sbin/ldconfig
 }
 
-
 ############################################################################
 #
 #
 #
 ############################################################################
 
-rm -fr /usr/lib64/nginx/private
+rm -fr /usr/lib64/nginx
 if [ -f /opt/gcc/lib/gcc/x86_64-redhat-linux/11/include-fixed/openssl/bn.h ]; then
     /usr/bin/mv -f /opt/gcc/lib/gcc/x86_64-redhat-linux/11/include-fixed/openssl/bn.h /opt/gcc/lib/gcc/x86_64-redhat-linux/11/include-fixed/openssl/bn.h.orig
 fi
@@ -795,7 +794,7 @@ install -m 0755 -d etc/logrotate.d
 install -m 0755 -d etc/nginx/conf.d
 install -m 0755 -d etc/systemd/system/nginx.service.d
 
-/bin/cp -fr usr/local/* usr/
+/bin/cp -afr usr/local/* usr/
 sleep 1
 rm -fr usr/local
 
