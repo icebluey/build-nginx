@@ -773,8 +773,8 @@ _build_libxslt
 _build_brotli
 _build_libmaxminddb
 _build_pcre2
-_build_openssl30quictls
 _build_perl
+_build_openssl30quictls
 
 _tmp_dir="$(mktemp -d)"
 cd "${_tmp_dir}"
