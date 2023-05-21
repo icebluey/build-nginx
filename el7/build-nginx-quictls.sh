@@ -42,15 +42,6 @@ _dl_nginx() {
     sleep 1
     [[ -e nginx/configure ]] || /bin/cp -f nginx/auto/configure nginx/configure
 
-    # pcre2
-    _pcre2_ver="$(wget -qO- 'https://github.com/PCRE2Project/pcre2/releases' | grep -i 'pcre2-[1-9]' | sed 's|"|\n|g' | grep -i '^/PCRE2Project/pcre2/tree' | sed 's|.*/pcre2-||g' | sed 's|\.tar.*||g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
-    wget -c -t 9 -T 9 "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${_pcre2_ver}/pcre2-${_pcre2_ver}.tar.bz2"
-    sleep 1
-    tar -xof pcre2-*.tar.*
-    sleep 1
-    rm -f pcre2-*.tar*
-    mv -f pcre2-* pcre2
-
     # modules
     install -m 0755 -d modules && cd modules
     git clone "https://github.com/nbs-system/naxsi.git" \
@@ -687,81 +678,13 @@ _build_openssl30quictls() {
     /sbin/ldconfig
 }
 
-_build_perl() {
-    /sbin/ldconfig
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    _perl_ver="$(wget -qO- 'https://www.cpan.org/src/README.html' | grep -i 'href="https://www.cpan.org/src/5.0/perl-5\.[1-9][24680]' | sed 's|"|\n|g' | grep -i '^https://www.cpan.org/src/5.0/perl-5' | sed -e 's|.*perl-||g' -e 's|\.tar.*||g' | grep -ivE 'alpha|beta|rc' | sort -V | tail -n 1)"
-    wget -c -t 9 -T 9 "https://www.cpan.org/src/5.0/perl-${_perl_ver}.tar.gz"
-    tar -xof perl-*.tar*
-    sleep 1
-    rm -f perl-*.tar*
-    cd perl-*
-    #LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
-    /bin/sh Configure -des -Doptimize=none '-Dccflags=-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-U_FORTIFY_SOURCE,-D_FORTIFY_SOURCE=3 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -m64 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer' '-Dldflags=-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -Wl,--build-id=sha1 ' '-Dccdlflags=-Wl,--enable-new-dtags -Wl,-z,relro -Wl,--as-needed -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -Wl,--build-id=sha1 ' '-Dlddlflags=-shared -Wl,-z,relro -Wl,--as-needed -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -Wl,--build-id=sha1 ' -Dshrpdir=/usr/lib64 -DDEBUGGING=-g -Dversion=5.36.1 -Dmyhostname=localhost -Dperladmin=root@localhost -Dcc=gcc '-Dcf_by=Red Hat, Inc.' -Dprefix=/usr -Dvendorprefix=/usr -Dsiteprefix=/usr/local -Dsitelib=/usr/local/share/perl5/5.36 -Dsitearch=/usr/local/lib64/perl5/5.36 -Dprivlib=/usr/share/perl5 -Dvendorlib=/usr/share/perl5/vendor_perl -Darchlib=/usr/lib64/perl5 -Dvendorarch=/usr/lib64/perl5/vendor_perl -Darchname=x86_64-linux-thread-multi '-Dlibpth=/usr/local/lib64 /lib64 /usr/lib64' -Duseshrplib -Dusethreads -Duseithreads -Dusedtrace=/usr/bin/dtrace -Duselargefiles -Dd_semctl_semun -Di_db -Ui_ndbm -Di_gdbm -Di_shadow -Di_syslog -Dman3ext=3pm -Duseperlio -Dinstallusrbinperl=n -Ubincompat5005 -Uversiononly '-Dpager=/usr/bin/less -isr' -Dd_gethostent_r_proto -Ud_endhostent_r_proto -Ud_sethostent_r_proto -Ud_endprotoent_r_proto -Ud_setprotoent_r_proto -Ud_endservent_r_proto -Ud_setservent_r_proto -Dscriptdir=/usr/bin -Dusesitecustomize -Duse64bitint
-    BUILD_BZIP2=0
-    BZIP2_LIB=/usr/lib64
-    export BUILD_BZIP2 BZIP2_LIB
-    make
-    rm -fr /tmp/perl
-    make install DESTDIR=/tmp/perl
-    cd /tmp/perl
-    rm -fr usr/local
-    if [[ "$(pwd)" = '/' ]]; then
-        echo
-        printf '\e[01;31m%s\e[m\n' "Current dir is '/'"
-        printf '\e[01;31m%s\e[m\n' "quit"
-        echo
-        exit 1
-    else
-        rm -fr lib64
-        rm -fr lib
-        chown -R root:root ./
-    fi
-    find usr/ -type f -iname '*.la' -delete
-    if [[ -d usr/share/man ]]; then
-        find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
-        find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
-        find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
-        find -L usr/share/man/ -type l -exec rm -f '{}' \;
-    fi
-    if [[ -d usr/lib/x86_64-linux-gnu ]]; then
-        find usr/lib/x86_64-linux-gnu/ -type f \( -iname '*.so' -or -iname '*.so.*' \) | xargs --no-run-if-empty -I '{}' chmod 0755 '{}'
-        find usr/lib/x86_64-linux-gnu/ -iname 'lib*.so*' -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
-        find usr/lib/x86_64-linux-gnu/ -iname '*.so' -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
-    fi
-    if [[ -d usr/lib64 ]]; then
-        find usr/lib64/ -type f \( -iname '*.so' -or -iname '*.so.*' \) | xargs --no-run-if-empty -I '{}' chmod 0755 '{}'
-        find usr/lib64/ -iname 'lib*.so*' -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
-        find usr/lib64/ -iname '*.so' -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
-    fi
-    if [[ -d usr/sbin ]]; then
-        find usr/sbin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
-    fi
-    if [[ -d usr/bin ]]; then
-        find usr/bin/ -type f -exec file '{}' \; | sed -n -e 's/^\(.*\):[  ]*ELF.*, not stripped.*/\1/p' | xargs --no-run-if-empty -I '{}' /usr/bin/strip '{}'
-    fi
-    echo
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/perl
-    /sbin/ldconfig
-}
-
 ############################################################################
 #
 #
 #
 ############################################################################
 
-rm -fr /usr/lib64/nginx
+rm -fr /usr/lib64/nginx/private
 if [ -f /opt/gcc/lib/gcc/x86_64-redhat-linux/11/include-fixed/openssl/bn.h ]; then
     /usr/bin/mv -f /opt/gcc/lib/gcc/x86_64-redhat-linux/11/include-fixed/openssl/bn.h /opt/gcc/lib/gcc/x86_64-redhat-linux/11/include-fixed/openssl/bn.h.orig
 fi
@@ -773,7 +696,6 @@ _build_libxslt
 _build_brotli
 _build_libmaxminddb
 _build_pcre2
-_build_perl
 _build_openssl30quictls
 
 _tmp_dir="$(mktemp -d)"
