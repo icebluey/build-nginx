@@ -389,10 +389,13 @@ _build_nginx() {
     _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.26' | tail -n 1)"
-    wget -c -t 9 -T 9 "https://github.com/nginx/nginx/archive/refs/tags/release-${_nginx_ver}.tar.gz"
-    tar -xof release*.tar*
+    #wget -c -t 9 -T 9 "https://github.com/nginx/nginx/archive/refs/tags/release-${_nginx_ver}.tar.gz"
+    #tar -xof release*.tar*
+    wget -c -t 9 -T 9 "https://nginx.org/download/nginx-${_nginx_ver}.tar.gz"
+    tar -xof nginx*.tar*
     sleep 1
     rm -f release*.tar*
+    rm -f nginx*.tar*
     mkdir modules
     cd modules
     git clone "https://github.com/nbs-system/naxsi.git" ngx_http_naxsi_module
@@ -425,7 +428,8 @@ _build_nginx() {
     _http_module_args="$(./auto/configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     _stream_module_args="$(./auto/configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     LDFLAGS=''; export LDFLAGS
-    ./auto/configure \
+    #./auto/configure \
+    ./configure \
     --build=x86_64-linux-gnu \
     --prefix=/usr/share/nginx \
     --sbin-path=/usr/sbin/nginx \
@@ -450,8 +454,6 @@ _build_nginx() {
     --with-poll_module \
     --with-select_module \
     --with-threads \
-    --with-pcre-jit \
-    --with-pcre \
     --add-module=../modules/ngx_http_brotli_module \
     --add-module=../modules/ngx_http_cache_purge_module \
     --add-module=../modules/ngx_http_echo_module \
@@ -463,7 +465,8 @@ _build_nginx() {
     --add-module=../modules/ngx_http_naxsi_module/naxsi_src \
     --add-module=../modules/ngx_pagespeed \
     --add-module=../modules/ngx_rtmp_module \
-    --with-ld-opt='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now'
+    --with-cc-opt='-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
+    --with-ld-opt='-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie'
     make -j2
     rm -fr /tmp/nginx
     make install DESTDIR=/tmp/nginx
