@@ -92,6 +92,119 @@ _build_zlib() {
     /sbin/ldconfig
 }
 
+_build_xz() {
+    /sbin/ldconfig
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _xz_ver="$(wget -qO- 'https://tukaani.org/xz/' | grep -i 'href=".*xz-[1-9].*tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^xz-[1-9].*tar\.' | grep -ivE 'alpha|beta|rc' | sed -e 's|xz-||g' -e 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 "https://github.com/tukaani-project/xz/releases/download/v${_xz_ver}/xz-${_xz_ver}.tar.gz"
+    tar -xof xz-*.tar*
+    sleep 1
+    rm -f xz-*.tar*
+    cd xz-*
+    LDFLAGS='' ; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    ./configure \
+    --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
+    --enable-shared --enable-static \
+    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
+    # Remove runpath in xz
+    sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
+    make -j2 all
+    rm -fr /tmp/xz
+    make install DESTDIR=/tmp/xz
+    cd /tmp/xz
+    _strip_files    
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    rm -f /usr/lib/x86_64-linux-gnu/liblzma.*
+    sleep 2
+    /bin/cp -afr * /
+    sleep 2
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/xz
+    /sbin/ldconfig
+}
+
+_build_libxml2() {
+    /sbin/ldconfig
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _libxml2_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxml2/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxml2-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxml2-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 "https://download.gnome.org/sources/libxml2/${_libxml2_ver%.*}/libxml2-${_libxml2_ver}.tar.xz"
+    tar -xof libxml2-*.tar.*
+    sleep 1
+    rm -f libxml2-*.tar*
+    cd libxml2-*
+    find doc -type f -executable -print -exec chmod 0644 {} ';'
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    ./configure \
+    --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
+    --enable-shared --enable-static \
+    --with-legacy --with-ftp --with-xptr-locs --without-python \
+    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
+    sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
+    make -j2 all
+    rm -fr /tmp/libxml2
+    make install DESTDIR=/tmp/libxml2
+    cd /tmp/libxml2
+    # multiarch crazyness on timestamp differences or Makefile/binaries for examples
+    touch -m --reference=usr/include/libxml2/libxml/parser.h usr/bin/xml2-config
+    rm -fr usr/share/doc
+    _strip_files
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    rm -f /usr/lib/x86_64-linux-gnu/libxml2.*
+    sleep 2
+    /bin/cp -afr * /
+    sleep 2
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/libxml2
+    /sbin/ldconfig
+}
+
+_build_libxslt() {
+    /sbin/ldconfig
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _libxslt_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxslt/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxslt-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxslt-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 https://download.gnome.org/sources/libxslt/${_libxslt_ver%.*}/libxslt-${_libxslt_ver}.tar.xz
+    tar -xof libxslt-${_libxslt_ver}.tar.*
+    sleep 1
+    rm -f libxslt-*.tar*
+    cd libxslt-*
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    ./configure \
+    --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
+    --enable-shared --enable-static \
+    --without-python --without-crypto \
+    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
+    sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
+    make -j2 all
+    rm -fr /tmp/libxslt
+    make install DESTDIR=/tmp/libxslt
+    cd /tmp/libxslt
+    # multiarch crazyness on timestamp differences or Makefile/binaries for examples
+    touch -m --reference=usr/include/libxslt/xslt.h usr/bin/xslt-config
+    rm -fr usr/share/doc
+    _strip_files
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    rm -f /usr/lib/x86_64-linux-gnu/libxslt.*
+    rm -f /usr/lib/x86_64-linux-gnu/libexslt.*
+    sleep 2
+    /bin/cp -afr * /
+    sleep 2
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/libxslt
+    /sbin/ldconfig
+}
+
 _build_libmaxminddb() {
     /sbin/ldconfig
     set -e
@@ -428,8 +541,8 @@ _build_nginx() {
     sed 's@"nginx/"@"gws-v"@g' -i src/core/nginx.h
     sed 's@Server: nginx@Server: gws@g' -i src/http/ngx_http_header_filter_module.c
     sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
-    _http_module_args="$(./auto/configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-    _stream_module_args="$(./auto/configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     LDFLAGS=''; export LDFLAGS
     #./auto/configure \
     ./configure \
@@ -619,6 +732,9 @@ CONFFILE=/etc/nginx/nginx.conf' > etc/sysconfig/nginx
 rm -fr /usr/lib/x86_64-linux-gnu/nginx
 
 _build_zlib
+_build_xz
+_build_libxml2
+_build_libxslt
 _build_libmaxminddb
 _build_brotli
 _build_lz4
