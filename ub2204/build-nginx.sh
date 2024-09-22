@@ -742,6 +742,14 @@ NGINX=/usr/sbin/nginx
 CONFFILE=/etc/nginx/nginx.conf' > etc/sysconfig/nginx
 chmod 0644 etc/sysconfig/nginx
 
+    rm -f etc/nginx/nginx.conf
+    rm -f etc/nginx/nginx.conf.default
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/nginx.conf' -O etc/nginx/nginx.conf
+    chmod 0644 etc/nginx/nginx.conf
+    cp -f etc/nginx/nginx.conf etc/nginx/nginx.conf.default
+    rm -f etc/nginx/conf.d/default.conf
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/default.conf' -O etc/nginx/conf.d/default.conf
+    chmod 0644 etc/nginx/conf.d/default.conf
     chown -R nginx:nginx var/www/html
     chown -R nginx:nginx var/lib/nginx
     sleep 2
