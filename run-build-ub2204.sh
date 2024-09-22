@@ -18,6 +18,6 @@ docker exec ub2204 /bin/bash /home/ub2204/build-nginx.sh
 _nginx_ver="$(docker exec ub2204 ls -1 /tmp/ | grep -i '^nginx.*xz$' | sed -e 's|nginx-||g' -e 's|-[0-1]_.*||g')"
 rm -fr /home/.tmp
 mkdir /home/.tmp
-docker cp ub2204:/tmp/nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz /home/.tmp.nginx/
-docker cp ub2204:/tmp/nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz.sha256 /home/.tmp.nginx/
+docker cp ub2204:/tmp/nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz /home/.tmp/
+docker cp ub2204:/tmp/nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz.sha256 /home/.tmp/
 exit
