@@ -303,6 +303,46 @@ _build_openssl33() {
     /sbin/ldconfig
 }
 
+_build_libedit() {
+    /sbin/ldconfig >/dev/null 2>&1
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _libedit_ver="$(wget -qO- 'https://www.thrysoee.dk/editline/' | grep libedit-[1-9].*\.tar | sed 's|"|\n|g' | grep '^libedit-[1-9]' | sed -e 's|\.tar.*||g' -e 's|libedit-||g' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 "https://www.thrysoee.dk/editline/libedit-${_libedit_ver}.tar.gz"
+    tar -xof libedit-*.tar.*
+    sleep 1
+    rm -f libedit-*.tar*
+    cd libedit-*
+    sed -i "s/lncurses/ltinfo/" configure
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    ./configure \
+    --build=x86_64-linux-gnu \
+    --host=x86_64-linux-gnu \
+    --prefix=/usr \
+    --libdir=/usr/lib/x86_64-linux-gnu \
+    --includedir=/usr/include \
+    --sysconfdir=/etc \
+    --enable-shared --enable-static \
+    --enable-widec
+    sleep 1
+    make -j2 all
+    rm -fr /tmp/libedit
+    make install DESTDIR=/tmp/libedit
+    cd /tmp/libedit
+    _strip_files
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    rm -f /usr/lib/x86_64-linux-gnu/libedit.*
+    sleep 2
+    /bin/cp -afr * /
+    sleep 2
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/libedit
+    /sbin/ldconfig
+}
+
 _build_pcre2() {
     /sbin/ldconfig
     set -e
@@ -576,10 +616,12 @@ CONFFILE=/etc/nginx/nginx.conf' > etc/sysconfig/nginx
 rm -fr /usr/lib/x86_64-linux-gnu/nginx
 
 _build_zlib
+_build_libmaxminddb
 _build_brotli
 _build_lz4
 _build_zstd
 _build_openssl33
+_build_libedit
 _build_pcre2
 _build_nginx
 
