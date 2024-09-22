@@ -4,6 +4,9 @@ TZ='UTC'; export TZ
 
 umask 022
 
+apt update -y
+apt install -y libc6-dev libxml2-dev libxslt1-dev libperl-dev perl libgd-dev bc
+
 LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now'
 export LDFLAGS
 _ORIG_LDFLAGS="${LDFLAGS}"
