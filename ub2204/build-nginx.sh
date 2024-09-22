@@ -721,10 +721,26 @@ chmod 0644 etc/nginx/nginx.service
 chmod 0644 etc/nginx/.del.txt
 chmod 0644 etc/nginx/.install.txt
 
-echo '# Configuration file for the nginx service.
+echo '<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to gws!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to gws!</h1>
+</body>
+</html>' > usr/share/nginx/html/index.html
+chmod 0644 usr/share/nginx/html/index.html
 
+echo '# Configuration file for the nginx service.
 NGINX=/usr/sbin/nginx
 CONFFILE=/etc/nginx/nginx.conf' > etc/sysconfig/nginx
+chmod 0644 etc/sysconfig/nginx
 
     chown -R nginx:nginx var/www/html
     chown -R nginx:nginx var/lib/nginx
