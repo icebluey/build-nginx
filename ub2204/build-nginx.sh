@@ -596,7 +596,7 @@ _build_nginx() {
     install -m 0755 -d etc/nginx/conf.d
     install -m 0755 -d etc/nginx/geoip
     install -m 0700 -d var/log/nginx
-    cp -fr usr/local/* usr/
+    [ -d usr/local ] && cp -fr usr/local/* usr/
     sleep 1
     rm -fr usr/local
     sed 's/nginx\/$nginx_version/gws/g' -i etc/nginx/fastcgi.conf
