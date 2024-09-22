@@ -411,9 +411,9 @@ _build_nginx() {
     --with-select_module \
     --with-threads \
     --with-pcre-jit \
-    --with-pcre \
-    --with-zlib \
-    --with-openssl \
+    --with-pcre=/usr \
+    --with-zlib=/usr \
+    --with-openssl=/usr \
     --add-module=../modules/ngx_http_brotli_module \
     --add-module=../modules/ngx_http_cache_purge_module \
     --add-module=../modules/ngx_http_echo_module \
