@@ -593,10 +593,10 @@ _build_nginx() {
     install -m 0755 -d var/www/html
     install -m 0755 -d var/lib/nginx/tmp
     install -m 0755 -d usr/lib/x86_64-linux-gnu/nginx/modules
-    #install -m 0755 -d usr/lib/systemd/system
     install -m 0755 -d etc/sysconfig
-    install -m 0755 -d etc/systemd/system/nginx.service.d
-    install -m 0755 -d etc/logrotate.d
+    #install -m 0755 -d usr/lib/systemd/system
+    #install -m 0755 -d etc/systemd/system/nginx.service.d
+    #install -m 0755 -d etc/logrotate.d
     install -m 0755 -d etc/nginx/conf.d
     install -m 0755 -d etc/nginx/geoip
     install -m 0700 -d var/log/nginx
@@ -719,6 +719,8 @@ echo '\''/var/log/nginx/*log {
     endscript
 }'\'' >/etc/logrotate.d/nginx
 chmod 0644 /etc/logrotate.d/nginx
+install -m 0755 -d /etc/systemd/system/nginx.service.d
+install -m 0755 -d /etc/logrotate.d
 ' > etc/nginx/.install.txt
 
 chmod 0644 etc/nginx/nginx.service
