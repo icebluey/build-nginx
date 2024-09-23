@@ -524,10 +524,10 @@ _build_nginx() {
     git clone "https://github.com/apache/incubator-pagespeed-ngx.git" ngx_pagespeed
     #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
     #tar -xof psol.tar.gz -C ngx_pagespeed/
-    wget -4 https://www.tiredofit.nl/psol-jammy.tar.xz
-    tar -xof psol-jammy.tar.xz -C ngx_pagespeed/
+    wget -c 'https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz'
+    tar -xof psol-jammy.tar.gz -C ngx_pagespeed/
     sleep 2
-    rm -fr psol.tar.gz
+    rm -f psol*.tar.gz
     git clone "https://github.com/openresty/redis2-nginx-module.git" ngx_http_redis2_module
     git clone "https://github.com/openresty/memc-nginx-module.git" ngx_http_memc_module
     git clone "https://github.com/openresty/echo-nginx-module.git" ngx_http_echo_module
