@@ -521,11 +521,11 @@ _build_nginx() {
     git clone "https://github.com/openresty/headers-more-nginx-module.git" ngx_http_headers_more_filter_module
     git clone "https://github.com/yaoweibin/ngx_http_substitutions_filter_module.git" ngx_http_substitutions_filter_module
     git clone --recursive "https://github.com/eustas/ngx_brotli.git" ngx_http_brotli_module
-    #git clone "https://github.com/apache/incubator-pagespeed-ngx.git" ngx_pagespeed
-    #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
-    #tar -xof psol.tar.gz -C ngx_pagespeed/
-    #sleep 2
-    #rm -fr psol.tar.gz
+    git clone "https://github.com/apache/incubator-pagespeed-ngx.git" ngx_pagespeed
+    wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
+    tar -xof psol.tar.gz -C ngx_pagespeed/
+    sleep 2
+    rm -fr psol.tar.gz
     git clone "https://github.com/openresty/redis2-nginx-module.git" ngx_http_redis2_module
     git clone "https://github.com/openresty/memc-nginx-module.git" ngx_http_memc_module
     git clone "https://github.com/openresty/echo-nginx-module.git" ngx_http_echo_module
@@ -570,6 +570,7 @@ _build_nginx() {
     --with-poll_module \
     --with-select_module \
     --with-threads \
+    --with-compat \
     --add-module=../modules/ngx_http_brotli_module \
     --add-module=../modules/ngx_http_cache_purge_module \
     --add-module=../modules/ngx_http_echo_module \
@@ -580,6 +581,7 @@ _build_nginx() {
     --add-module=../modules/ngx_http_substitutions_filter_module \
     --add-module=../modules/ngx_http_naxsi_module/naxsi_src \
     --add-module=../modules/ngx_rtmp_module \
+    --add-module=../modules/ngx_pagespeed \
     --with-cc-opt='-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
     --with-ld-opt='-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie'
     make -j2
