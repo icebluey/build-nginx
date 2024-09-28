@@ -759,8 +759,6 @@ chmod 0644 etc/sysconfig/nginx
     rm -f etc/nginx/conf.d/default.conf
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/default.conf' -O etc/nginx/conf.d/default.conf
     chmod 0644 etc/nginx/conf.d/default.conf
-    chown -R nginx:nginx var/www/html
-    chown -R nginx:nginx var/lib/nginx
     sleep 2
     tar -Jcvf /tmp/nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz *
     echo
