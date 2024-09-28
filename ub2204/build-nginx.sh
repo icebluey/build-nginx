@@ -590,8 +590,9 @@ _build_nginx() {
     rm -fr /tmp/nginx
     make install DESTDIR=/tmp/nginx
     cd /tmp/nginx
-    install -m 0755 -d var/www/html
-    install -m 0755 -d var/lib/nginx/tmp
+    #install -m 0755 -d var/www/html
+    #install -m 0755 -d var/lib/nginx/tmp
+    #install -m 0700 -d var/log/nginx
     install -m 0755 -d usr/lib/x86_64-linux-gnu/nginx/modules
     install -m 0755 -d etc/sysconfig
     #install -m 0755 -d usr/lib/systemd/system
@@ -599,7 +600,6 @@ _build_nginx() {
     #install -m 0755 -d etc/logrotate.d
     install -m 0755 -d etc/nginx/conf.d
     install -m 0755 -d etc/nginx/geoip
-    install -m 0700 -d var/log/nginx
     [ -d usr/local ] && cp -fr usr/local/* usr/
     sleep 1
     rm -fr usr/local
@@ -625,7 +625,8 @@ _build_nginx() {
     find /tmp/nginx -type f -empty -exec rm -vf '{}' \;
     find /tmp/nginx -type f -iname '*.so' -exec chmod -v 0755 '{}' \;
     rm -fr run
-    rm -fr var/run
+    #rm -fr var/run
+    rm -fr var
     [ -d usr/man ] && mv -f usr/man usr/share/
 
 echo '[Unit]
@@ -700,11 +701,7 @@ getent group nginx > /dev/null || groupadd -r nginx
 getent passwd nginx > /dev/null || useradd -r -d /var/lib/nginx -g nginx -s /usr/sbin/nologin -c "Nginx web server" nginx
 rm -f /lib/systemd/system/nginx.service
 install -v -c -m 0644 nginx.service /lib/systemd/system/
-chown -R nginx:nginx /var/www/html
-chown -R nginx:nginx /var/lib/nginx
-systemctl daemon-reload >/dev/null 2>&1 || : 
-sleep 1
-systemctl enable nginx.service >/dev/null 2>&1 || : 
+[ -d /etc/logrotate.d ] || install -m 0755 -d /etc/logrotate.d
 echo '\''/var/log/nginx/*log {
     create 0644 root root
     daily
@@ -719,8 +716,14 @@ echo '\''/var/log/nginx/*log {
     endscript
 }'\'' >/etc/logrotate.d/nginx
 chmod 0644 /etc/logrotate.d/nginx
-install -m 0755 -d /etc/systemd/system/nginx.service.d
-install -m 0755 -d /etc/logrotate.d
+[ -d /etc/systemd/system/nginx.service.d ] || install -m 0755 -d /etc/systemd/system/nginx.service.d
+[ -d /var/lib/nginx/tmp ] || install -m 0755 -d /var/lib/nginx/tmp
+[ -d /var/www/html ] || install -m 0755 -d /var/www/html
+[ -d /var/log/nginx ] || install -m 0755 -d /var/log/nginx
+chown -R nginx:nginx /var/www/html
+chown -R nginx:nginx /var/lib/nginx
+systemctl daemon-reload >/dev/null 2>&1 || : 
+
 ' > etc/nginx/.install.txt
 
 chmod 0644 etc/nginx/nginx.service
