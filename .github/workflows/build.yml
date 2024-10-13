@@ -17,6 +17,7 @@ jobs:
           sudo apt install -y bash wget;
           sudo ln -svf bash /bin/sh;
           sudo /bin/bash scripts/clean-os.sh;
+          sudo apt upgrade -y -qqq;
           sudo /bin/bash scripts/install-docker.sh
 
       - name: Build nginx ub2204
