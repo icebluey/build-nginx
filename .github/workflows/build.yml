@@ -16,15 +16,14 @@ jobs:
           sudo apt autoremove --purge needrestart;
           sudo apt install -y bash;
           sudo ln -svf bash /bin/sh;
-          sudo /bin/bash scripts/.clean-os.sh;
-          sudo /bin/bash scripts/install_for_docker.sh;
+          sudo /bin/bash scripts/clean-os.sh;
           sudo /bin/bash scripts/install_docker.sh;
 
       - name: Build nginx ub2204
         run: |
           sudo /bin/bash run-build-ub2204.sh
           sudo /bin/systemctl stop docker.socket docker.service containerd.service
-          sudo /bin/rm -fr /var/lib/docker/* /var/lib/containerd/*
+          sudo /bin/rm -fr /var/lib/docker/* /var/lib/containerd/* /mnt/docker-data/*
       - name: Upload nginx ub2204
         run: |
           _dateutc=$(date -u +%Y-%m-%d-%H%M)
