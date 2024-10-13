@@ -386,7 +386,8 @@ _build_openssl33() {
     --libdir=/usr/lib/x86_64-linux-gnu \
     --openssldir=/etc/ssl \
     enable-ec_nistp_64_gcc_128 \
-    zlib enable-tls1_3 threads \
+    enable-zlib enable-zstd enable-brotli \
+    enable-tls1_3 threads \
     enable-camellia enable-seed \
     enable-rfc3779 enable-sctp enable-cms \
     enable-md2 enable-rc5 enable-ktls \
