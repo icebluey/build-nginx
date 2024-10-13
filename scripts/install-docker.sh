@@ -9,5 +9,5 @@ wget -c -T 9 -t 9 -O /tmp/install-docker.sh \
 "https://raw.githubusercontent.com/icebluey/docker/refs/heads/master/install/ubuntu/install-docker.sh"
 /bin/bash /tmp/install-for-docker.sh
 /bin/bash /tmp/install-docker.sh
-/bin/rm -f /tmp/install-for-docker.sh /tmp/install-docker.sh
+/bin/rm -vf /tmp/install-for-docker.sh /tmp/install-docker.sh
 exit
