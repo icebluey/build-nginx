@@ -385,14 +385,16 @@ _build_openssl33() {
     --prefix=/usr \
     --libdir=/usr/lib/x86_64-linux-gnu \
     --openssldir=/etc/ssl \
-    enable-ec_nistp_64_gcc_128 \
     enable-zlib enable-zstd enable-brotli \
-    enable-tls1_3 threads \
+    enable-argon2 enable-tls1_3 threads \
     enable-camellia enable-seed \
     enable-rfc3779 enable-sctp enable-cms \
-    enable-md2 enable-rc5 enable-ktls \
+    enable-ec enable-ecdh enable-ecdsa \
+    enable-ec_nistp_64_gcc_128 \
+    enable-poly1305 enable-ktls enable-quic \
+    enable-md2 enable-rc5 \
     no-mdc2 no-ec2m \
-    no-sm2 no-sm3 no-sm4 \
+    no-sm2 no-sm2-precomp no-sm3 no-sm4 \
     shared linux-x86_64 '-DDEVRANDOM="\"/dev/urandom\""'
     perl configdata.pm --dump
     make -j2 all
