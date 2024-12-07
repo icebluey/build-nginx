@@ -11,7 +11,7 @@ _tmp_dir="$(mktemp -d)"
 cd "${_tmp_dir}"
 _release_time="$(wget -qO- 'https://github.com/icebluey/kernel/releases' | grep -i 'kernel-core.*el9' | sed 's|"|\n|g' | grep -i '/kernel/releases/download/.*/kernel-core.*el9' | sed -e 's|.*download/||g' -e 's|/kernel.*||g')"
 _release_ver="$(wget -qO- 'https://github.com/icebluey/kernel/releases' | grep -i 'kernel-core.*el9' | sed 's|"|\n|g' | grep -i '/kernel/releases/download/.*/kernel-core.*el9' | sed -e 's|.*kernel-core-||g' -e 's|\.el9.*||g')"
-wget "https://github.com/icebluey/kernel/releases/download/${_release_time}/kernel-${_release_ver}-repos.tar.gz"
+wget "https://github.com/icebluey/kernel/releases/download/${_release_time}/kernel-${_release_ver}.el9.x86_64-repos.tar.gz"
 tar -xof kernel-*.tar*
 sleep 1
 rm -f kernel-*.tar*
