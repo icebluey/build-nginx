@@ -644,7 +644,7 @@ _build_nginx() {
     sed 's@#pid .*nginx.pid;@pid  /run/nginx.pid;@g' -i etc/nginx/nginx.conf.default
     sed '/ root .* html;/s@html;@/var/www/html;@g' -i etc/nginx/nginx.conf
     sed '/ root .* html;/s@html;@/var/www/html;@g' -i etc/nginx/nginx.conf.default
-    rm -fr etc/nginx/nginx.conf
+    rm -fr etc/nginx/nginx.conf*
     _strip_files
     install -m 0755 -d usr/lib64/nginx
     cp -afr /"${_private_dir}" usr/lib64/nginx/
@@ -742,6 +742,7 @@ echo '\''/var/log/nginx/*log {
     postrotate
         /usr/bin/killall -HUP rsyslogd 2> /dev/null || true
         /usr/bin/killall -HUP syslogd 2> /dev/null || true
+        /usr/sbin/nginx -s reload 2> /dev/null || true
     endscript
 }'\'' >/etc/logrotate.d/nginx
 chmod 0644 /etc/logrotate.d/nginx
@@ -780,11 +781,11 @@ NGINX=/usr/sbin/nginx
 CONFFILE=/etc/nginx/nginx.conf' > etc/sysconfig/nginx
 chmod 0644 etc/sysconfig/nginx
 
-    rm -f etc/nginx/nginx.conf
-    rm -f etc/nginx/nginx.conf.default
+    rm -f etc/nginx/nginx.conf*
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/nginx.conf' -O etc/nginx/nginx.conf
-    chmod 0644 etc/nginx/nginx.conf
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/nginx.conf2' -O etc/nginx/nginx.conf.default2
     cp -f etc/nginx/nginx.conf etc/nginx/nginx.conf.default
+    chmod 0644 etc/nginx/nginx.conf*
     rm -f etc/nginx/conf.d/default.conf
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/default.conf' -O etc/nginx/conf.d/default.conf
     chmod 0644 etc/nginx/conf.d/default.conf
