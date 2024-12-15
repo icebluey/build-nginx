@@ -784,7 +784,7 @@ chmod 0644 etc/sysconfig/nginx
     rm -f etc/nginx/nginx.conf*
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/nginx.conf' -O etc/nginx/nginx.conf
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/nginx.conf2' -O etc/nginx/nginx.conf.default2
-    cp -f etc/nginx/nginx.conf etc/nginx/nginx.conf.default
+    mv -f etc/nginx/nginx.conf etc/nginx/nginx.conf.default
     chmod 0644 etc/nginx/nginx.conf*
     rm -f etc/nginx/conf.d/default.conf
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/default.conf' -O etc/nginx/conf.d/default.conf
