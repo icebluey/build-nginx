@@ -1,0 +1,129 @@
+user  nginx;
+worker_processes  auto;
+worker_rlimit_nofile 65536;
+
+error_log  /var/log/nginx/error.log notice;
+pid  /run/nginx.pid;
+
+events {
+    worker_connections 2048;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    charset UTF-8;
+    server_tokens off;
+    aio threads;
+    tcp_nodelay on;
+    tcp_nopush on;
+    sendfile on;
+    keepalive_timeout  120;
+    etag off;
+
+    gzip on;
+    gzip_min_length 1k;
+    gzip_buffers 4 32k;
+    gzip_http_version 1.1;
+    gzip_comp_level 5;
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_disable "MSIE [1-6]\.";
+
+    brotli on;
+    brotli_comp_level 6;
+    brotli_buffers 16 8k;
+    brotli_min_length 20;
+    brotli_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript image/svg+xml;
+
+    server {
+        listen                     8443 ssl;
+        listen                     [::]:8443 ssl;
+        http2                      on;
+        server_name                example.com www.example.com;
+        root                       /var/www/html;
+        server_tokens              off;
+        more_clear_headers         Server;
+        more_set_headers           Server:gws;
+
+        ssl_protocols              TLSv1.3;
+        ssl_prefer_server_ciphers  off;
+        ssl_ecdh_curve             X25519:secp384r1:secp521r1;
+        ssl_dhparam                /root/.ssl/dhparam.pem;
+        ssl_certificate            /root/.ssl/cert.crt;
+        ssl_certificate_key        /root/.ssl/privkey.pem;
+        ssl_conf_command           Options KTLS;
+        resolver                   127.0.0.1;
+        ssl_session_cache          shared:SSL:20m;
+        ssl_session_timeout        100800s;
+        ssl_session_tickets        off;
+        ssl_early_data             on;
+        ssl_stapling               on;
+        ssl_stapling_verify        on;
+
+        add_header Cache-Control "private, max-age=0" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header X-Frame-Options SAMEORIGIN always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+        location / {
+            #add_header Alt-Svc 'h3=":$server_port"; ma=86400';
+            add_header X-protocol $server_protocol always;
+            add_header Permissions-Policy interest-cohort=();
+            root   /var/www/html;
+            index  index.html index.htm index.php;
+        }
+
+        location /ws-path {
+            proxy_redirect off;
+            proxy_pass http://127.0.0.1:10000;
+            proxy_http_version 1.1;
+            proxy_set_header Early-Data $ssl_early_data;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location /status {
+            stub_status on;
+            allow 127.0.0.1;
+            deny all;
+        }
+    }
+
+    server {
+        listen           8080;
+        listen           [::]:8080;
+        server_name      example.com www.example.com;
+        root             /var/www/html;
+        server_tokens    off;
+        more_clear_headers         Server;
+        more_set_headers           Server:gws;
+        return 301 https://$host$request_uri:8443;
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+
+    server {
+        listen 8080 default_server;
+        listen [::]:8080 default_server;
+        server_name _;
+        return 444;
+    }
+}
