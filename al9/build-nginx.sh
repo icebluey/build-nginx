@@ -777,8 +777,7 @@ NGINX=/usr/sbin/nginx
 CONFFILE=/etc/nginx/nginx.conf' > etc/sysconfig/nginx
 chmod 0644 etc/sysconfig/nginx
 
-    rm -f etc/nginx/nginx.conf
-    rm -f etc/nginx/nginx.conf.default
+    rm -f etc/nginx/nginx.conf*
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/nginx.conf' -O etc/nginx/nginx.conf
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/nginx.conf2' -O etc/nginx/nginx.conf.default2
     cp -f etc/nginx/nginx.conf etc/nginx/nginx.conf.default
