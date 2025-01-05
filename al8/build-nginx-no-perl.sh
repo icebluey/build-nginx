@@ -789,6 +789,9 @@ chmod 0644 etc/sysconfig/nginx
     rm -f etc/nginx/conf.d/default.conf
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/default.conf' -O etc/nginx/conf.d/default.conf
     chmod 0644 etc/nginx/conf.d/default.conf
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/h2.conf' -O etc/nginx/conf.d/h2.conf.example
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/h3.conf' -O etc/nginx/conf.d/h3.conf.example
+    chmod 0644 etc/nginx/conf.d/h*
     sleep 2
     tar -Jcvf /tmp/nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz *
     echo
