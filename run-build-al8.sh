@@ -21,6 +21,7 @@ docker exec al8 yum install -y wget bash
 docker exec al8 /bin/bash -c 'ln -svf bash /bin/sh'
 docker exec al8 /bin/bash -c 'rm -fr /tmp/*'
 docker cp al8 al8:/home/
+docker exec al8 /bin/bash /home/al8/install-kernel.sh
 docker exec al8 /bin/bash /home/al8/.preinstall_al8
 docker exec al8 /bin/bash /home/al8/build-nginx.sh
 docker exec al8 /bin/bash /home/al8/build-nginx-no-perl.sh
