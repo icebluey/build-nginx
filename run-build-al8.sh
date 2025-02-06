@@ -10,9 +10,11 @@ echo
 cat /proc/cpuinfo
 echo
 if [ "$(cat /proc/cpuinfo | grep -i '^processor' | wc -l)" -gt 1 ]; then
-    docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd almalinux:8 bash
+    #docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd almalinux:8 bash
+    docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd quay.io/almalinuxorg/almalinux:8 bash
 else
-    docker run --rm --name al8 -itd almalinux:8 bash
+    #docker run --rm --name al8 -itd almalinux:8 bash
+    docker run --rm --name al8 -itd quay.io/almalinuxorg/almalinux:8 bash
 fi
 sleep 2
 docker exec al8 yum clean all
