@@ -713,11 +713,11 @@ chmod 0644 etc/sysconfig/nginx
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/opt.conf' -O etc/nginx/conf.d/opt.conf.example
     chmod 0644 etc/nginx/conf.d/*conf*
     sleep 2
-    tar -Jcvf /tmp/nginx-"${_nginx_ver}"-1_el8_amd64.tar.xz *
+    tar -Jcvf /tmp/nginx-"${_nginx_ver}"-1_ky10_amd64.tar.xz *
     echo
     sleep 2
     cd /tmp
-    openssl dgst -r -sha256 nginx-"${_nginx_ver}"-1_el8_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-1_el8_amd64.tar.xz.sha256
+    openssl dgst -r -sha256 nginx-"${_nginx_ver}"-1_ky10_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-1_ky10_amd64.tar.xz.sha256
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/nginx
     /sbin/ldconfig

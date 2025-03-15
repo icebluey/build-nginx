@@ -89,41 +89,6 @@ _build_zlib() {
     /sbin/ldconfig
 }
 
-_build_xz() {
-    /sbin/ldconfig
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    _xz_ver="$(wget -qO- 'https://tukaani.org/xz/' | grep -i 'href=".*xz-[1-9].*tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^xz-[1-9].*tar\.' | grep -ivE 'alpha|beta|rc' | sed -e 's|xz-||g' -e 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
-    wget -c -t 9 -T 9 "https://github.com/tukaani-project/xz/releases/download/v${_xz_ver}/xz-${_xz_ver}.tar.gz"
-    tar -xof xz-*.tar*
-    sleep 1
-    rm -f xz-*.tar*
-    cd xz-*
-    LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
-    ./configure \
-    --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
-    --enable-shared --enable-static \
-    --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --sysconfdir=/etc
-    # Remove runpath in xz
-    sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
-    make -j$(nproc --all) all
-    rm -fr /tmp/xz
-    make install DESTDIR=/tmp/xz
-    cd /tmp/xz
-    _strip_files    
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
-    rm -f /usr/lib64/liblzma.*
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/xz
-    /sbin/ldconfig
-}
-
 _build_libxml2() {
     /sbin/ldconfig
     set -e
@@ -390,7 +355,7 @@ _build_openssl33() {
     enable-rfc3779 enable-sctp enable-cms \
     enable-ec enable-ecdh enable-ecdsa \
     enable-ec_nistp_64_gcc_128 \
-    enable-poly1305 enable-ktls enable-quic \
+    enable-poly1305 enable-quic \
     enable-md2 enable-rc5 \
     no-mdc2 no-ec2m \
     no-sm2 no-sm2-precomp no-sm3 no-sm4 \
@@ -415,46 +380,6 @@ _build_openssl33() {
     /sbin/ldconfig
 }
 
-_build_libedit() {
-    /sbin/ldconfig >/dev/null 2>&1
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    _libedit_ver="$(wget -qO- 'https://www.thrysoee.dk/editline/' | grep libedit-[1-9].*\.tar | sed 's|"|\n|g' | grep '^libedit-[1-9]' | sed -e 's|\.tar.*||g' -e 's|libedit-||g' | sort -V | uniq | tail -n 1)"
-    wget -c -t 9 -T 9 "https://www.thrysoee.dk/editline/libedit-${_libedit_ver}.tar.gz"
-    tar -xof libedit-*.tar.*
-    sleep 1
-    rm -f libedit-*.tar*
-    cd libedit-*
-    sed -i "s/lncurses/ltinfo/" configure
-    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
-    ./configure \
-    --build=x86_64-linux-gnu \
-    --host=x86_64-linux-gnu \
-    --prefix=/usr \
-    --libdir=/usr/lib64 \
-    --includedir=/usr/include \
-    --sysconfdir=/etc \
-    --enable-shared --enable-static \
-    --enable-widec
-    sleep 1
-    make -j$(nproc --all) all
-    rm -fr /tmp/libedit
-    make install DESTDIR=/tmp/libedit
-    cd /tmp/libedit
-    _strip_files
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
-    rm -f /usr/lib64/libedit.*
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/libedit
-    /sbin/ldconfig
-}
-
 _build_pcre2() {
     /sbin/ldconfig
     set -e
@@ -471,9 +396,7 @@ _build_pcre2() {
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
     --enable-pcre2-8 --enable-pcre2-16 --enable-pcre2-32 \
-    --enable-jit \
-    --enable-pcre2grep-libz --enable-pcre2grep-libbz2 \
-    --enable-pcre2test-libedit --enable-unicode \
+    --enable-jit --enable-unicode \
     --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --sysconfdir=/etc
     sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
     make -j$(nproc --all) all
@@ -528,6 +451,7 @@ _build_nginx() {
         tar -xof psol*.tar* -C ngx_pagespeed/
         sleep 1
         rm -f psol*.tar.gz
+        git clone "https://github.com/vozlt/nginx-module-vts.git" ngx_vts_module
     }
 
     _dl_modules_me() {
@@ -550,7 +474,7 @@ _build_nginx() {
         sleep 1
         rm -f psol*.tar.gz
     }
- 
+
     mkdir modules
     cd modules
     _dl_modules_orig
@@ -568,14 +492,8 @@ _build_nginx() {
     sed 's@"nginx/"@"gws-v"@g' -i src/core/nginx.h
     sed 's@Server: nginx@Server: gws@g' -i src/http/ngx_http_header_filter_module.c
     sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
-
-    #_http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-    #_stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-
-    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
-    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
-
-
+    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     LDFLAGS=''; export LDFLAGS
     #./auto/configure \
     ./configure \
@@ -615,6 +533,7 @@ _build_nginx() {
     --add-module=../modules/ngx_http_naxsi_module/naxsi_src \
     --add-module=../modules/ngx_rtmp_module \
     --add-module=../modules/ngx_pagespeed \
+    --add-module=../modules/ngx_vts_module \
     --with-cc-opt='-g -O2 -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
     --with-ld-opt='-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie'
     make -j$(nproc --all)
@@ -648,8 +567,6 @@ _build_nginx() {
     _strip_files
     install -m 0755 -d usr/lib64/nginx
     cp -afr /"${_private_dir}" usr/lib64/nginx/
-    if /bin/ls "/usr/lib64/libstdc++.so"* >/dev/null 2>&1; then /bin/cp -afv "/usr/lib64/libstdc++.so"* "${_private_dir}"/; fi
-
     #patchelf --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     patchelf --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     echo
@@ -719,6 +636,8 @@ rm -fr /etc/nginx/conf.d
 rm -fr /var/lib/nginx
 rm -fr /var/log/nginx
 rm -fr /usr/lib64/nginx
+rm -fr /usr/lib64/perl5/auto/nginx
+rm -f /usr/lib64/perl5/nginx.pm
 rm -f /etc/nginx/nginx.service
 systemctl daemon-reload >/dev/null 2>&1 || : 
 ' > etc/nginx/.del.txt
@@ -794,11 +713,11 @@ chmod 0644 etc/sysconfig/nginx
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/opt.conf' -O etc/nginx/conf.d/opt.conf.example
     chmod 0644 etc/nginx/conf.d/*conf*
     sleep 2
-    tar -Jcvf /tmp/nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz *
+    tar -Jcvf /tmp/nginx-"${_nginx_ver}"-no-perl-1_ky10_amd64.tar.xz *
     echo
     sleep 2
     cd /tmp
-    openssl dgst -r -sha256 nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz.sha256
+    openssl dgst -r -sha256 nginx-"${_nginx_ver}"-no-perl-1_ky10_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-no-perl-1_ky10_amd64.tar.xz.sha256
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/nginx
     /sbin/ldconfig
@@ -816,7 +735,6 @@ chmod 0644 etc/sysconfig/nginx
 #_build_lz4
 #_build_zstd
 #_build_openssl33
-#_build_libedit
 #_build_pcre2
 
 yum remove -y perl-devel
@@ -824,11 +742,11 @@ yum install -y perl-libs
 
 _build_nginx
 
-mkdir -p /tmp/_output
+rm -fr /tmp/_output
+mkdir /tmp/_output
 mv -f /tmp/nginx-*.tar* /tmp/_output/
 
 echo
 echo ' build nginx done'
 echo
 exit
-
