@@ -241,6 +241,10 @@ _build_brotli() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib64/*.so* "${_private_dir}"/
+    rm -fr /usr/include/brotli
+    rm -f /usr/lib64/libbrotlicommon.so
+    rm -f /usr/lib64/libbrotlidec.so
+    rm -f /usr/lib64/libbrotlienc.so
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -323,6 +327,11 @@ _build_zstd() {
     find usr/lib64/ -type f -iname '*.so*' | xargs -I '{}' chrpath -r '$ORIGIN' '{}'
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib64/*.so* "${_private_dir}"/
+    rm -f /usr/include/zbuff.h
+    rm -f /usr/include/zdict.h
+    rm -f /usr/include/zstd.h
+    rm -f /usr/include/zstd_err
+    rm -f /usr/lib64/libzstd.so
     sleep 2
     /bin/cp -afr * /
     sleep 2

@@ -64,6 +64,9 @@ yum install -y cmake
 # to build nginx
 yum install -y glibc-devel libxml2-devel libxslt-devel perl-devel perl gd-devel bc
 
+yum install -y brotli-devel
+yum install -y zstd-devel
+
 yum install -y dracut ; yum update -y dracut
 
 

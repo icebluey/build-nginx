@@ -323,6 +323,11 @@ _build_zstd() {
     find usr/lib64/ -type f -iname '*.so*' | xargs -I '{}' chrpath -r '$ORIGIN' '{}'
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib64/*.so* "${_private_dir}"/
+    rm -f /usr/include/zbuff.h
+    rm -f /usr/include/zdict.h
+    rm -f /usr/include/zstd.h
+    rm -f /usr/include/zstd_err
+    rm -f /usr/lib64/libzstd.so
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -492,8 +497,14 @@ _build_nginx() {
     sed 's@"nginx/"@"gws-v"@g' -i src/core/nginx.h
     sed 's@Server: nginx@Server: gws@g' -i src/http/ngx_http_header_filter_module.c
     sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
-    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+
+    #_http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    #_stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+
+    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
+    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
+
+
     LDFLAGS=''; export LDFLAGS
     #./auto/configure \
     ./configure \
@@ -567,6 +578,8 @@ _build_nginx() {
     _strip_files
     install -m 0755 -d usr/lib64/nginx
     cp -afr /"${_private_dir}" usr/lib64/nginx/
+    if /bin/ls "/usr/lib64/libstdc++.so"* >/dev/null 2>&1; then /bin/cp -afv "/usr/lib64/libstdc++.so"* "${_private_dir}"/; fi
+
     #patchelf --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     patchelf --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     echo
