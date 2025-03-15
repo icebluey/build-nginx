@@ -254,44 +254,6 @@ _build_brotli() {
     /sbin/ldconfig
 }
 
-_build_lz4() {
-    /sbin/ldconfig
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    git clone --recursive "https://github.com/lz4/lz4.git"
-    cd lz4
-    rm -fr .git
-    sed '/^PREFIX/s|= .*|= /usr|g' -i Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib64|g' -i Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i Makefile
-    sed '/^libdir/s|= .*|= /usr/lib64|g' -i Makefile
-    sed '/^PREFIX/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib64|g' -i lib/Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^libdir/s|= .*|= /usr/lib64|g' -i lib/Makefile
-    sed '/^PREFIX/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^LIBDIR/s|= .*|= /usr/lib64|g' -i programs/Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^libdir/s|= .*|= /usr/lib64|g' -i programs/Makefile
-    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64
-    rm -fr /tmp/lz4
-    make install DESTDIR=/tmp/lz4
-    cd /tmp/lz4
-    _strip_files
-    find usr/lib64/ -type f -iname '*.so*' | xargs -I '{}' chrpath -r '$ORIGIN' '{}'
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/lz4
-    /sbin/ldconfig
-}
-
 _build_zstd() {
     /sbin/ldconfig
     set -e
@@ -741,7 +703,6 @@ _build_libxml2
 _build_libxslt
 _build_libmaxminddb
 _build_brotli
-_build_lz4
 _build_zstd
 _build_openssl33
 _build_pcre2
