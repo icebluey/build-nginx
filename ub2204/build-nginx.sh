@@ -89,41 +89,6 @@ _build_zlib() {
     /sbin/ldconfig
 }
 
-_build_xz() {
-    /sbin/ldconfig
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    _xz_ver="$(wget -qO- 'https://tukaani.org/xz/' | grep -i 'href=".*xz-[1-9].*tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^xz-[1-9].*tar\.' | grep -ivE 'alpha|beta|rc' | sed -e 's|xz-||g' -e 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
-    wget -c -t 9 -T 9 "https://github.com/tukaani-project/xz/releases/download/v${_xz_ver}/xz-${_xz_ver}.tar.gz"
-    tar -xof xz-*.tar*
-    sleep 1
-    rm -f xz-*.tar*
-    cd xz-*
-    LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
-    ./configure \
-    --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
-    --enable-shared --enable-static \
-    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
-    # Remove runpath in xz
-    sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
-    make -j$(nproc --all) all
-    rm -fr /tmp/xz
-    make install DESTDIR=/tmp/xz
-    cd /tmp/xz
-    _strip_files    
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    rm -f /usr/lib/x86_64-linux-gnu/liblzma.*
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/xz
-    /sbin/ldconfig
-}
-
 _build_libxml2() {
     /sbin/ldconfig
     set -e
@@ -282,44 +247,6 @@ _build_brotli() {
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/brotli
-    /sbin/ldconfig
-}
-
-_build_lz4() {
-    /sbin/ldconfig
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    git clone --recursive "https://github.com/lz4/lz4.git"
-    cd lz4
-    rm -fr .git
-    sed '/^PREFIX/s|= .*|= /usr|g' -i Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i Makefile
-    sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i Makefile
-    sed '/^PREFIX/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i lib/Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i lib/Makefile
-    sed '/^PREFIX/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
-    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu
-    rm -fr /tmp/lz4
-    make install DESTDIR=/tmp/lz4
-    cd /tmp/lz4
-    _strip_files
-    find usr/lib/x86_64-linux-gnu/ -type f -iname '*.so*' | xargs -I '{}' chrpath -r '$ORIGIN' '{}'
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/lz4
     /sbin/ldconfig
 }
 
@@ -814,12 +741,10 @@ chmod 0644 etc/sysconfig/nginx
 rm -fr /usr/lib/x86_64-linux-gnu/nginx
 
 _build_zlib
-#_build_xz
 _build_libxml2
 _build_libxslt
 _build_libmaxminddb
 _build_brotli
-_build_lz4
 _build_zstd
 _build_openssl33
 _build_libedit
