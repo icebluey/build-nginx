@@ -9,6 +9,9 @@ if ! grep -q '^alias ll=' ~/.bashrc; then echo "alias ll='/bin/ls --color -lah'"
 dnf makecache
 dnf upgrade -y
 
+yum install -y brotli-devel
+yum install -y zstd-devel
+
 yum install -y openssl-libs
 yum install -y openssl
 yum install -y openssl-devel
@@ -70,9 +73,6 @@ yum install -y dracut ; yum update -y dracut
 /sbin/ldconfig >/dev/null 2>&1
 
 systemctl mask tmp.mount 
-
-yum install -y brotli-devel
-yum install -y zstd-devel
 
 echo
 echo ' preinstall done'
