@@ -288,7 +288,7 @@ _build_zstd() {
     rm -f /usr/include/zbuff.h
     rm -f /usr/include/zdict.h
     rm -f /usr/include/zstd.h
-    rm -f /usr/include/zstd_err
+    rm -f /usr/include/zstd_errors.h
     rm -f /usr/lib64/libzstd.so
     sleep 2
     /bin/cp -afr * /
