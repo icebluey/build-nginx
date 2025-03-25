@@ -317,7 +317,7 @@ _build_openssl33() {
     enable-rfc3779 enable-sctp enable-cms \
     enable-ec enable-ecdh enable-ecdsa \
     enable-ec_nistp_64_gcc_128 \
-    enable-poly1305 enable-ktls enable-quic \
+    enable-poly1305 no-ktls enable-quic \
     enable-md2 enable-rc5 \
     no-mdc2 no-ec2m \
     no-sm2 no-sm2-precomp no-sm3 no-sm4 \
