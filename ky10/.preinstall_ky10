@@ -2,6 +2,8 @@
 export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 TZ='UTC'; export TZ
 
+cd "$(dirname "$0")"
+
 set -e
 
 if ! grep -q '^alias ll=' ~/.bashrc; then echo "alias ll='/bin/ls --color -lah'" >> ~/.bashrc; . ~/.bashrc; fi
@@ -73,6 +75,8 @@ yum install -y dracut ; yum update -y dracut
 /sbin/ldconfig >/dev/null 2>&1
 
 systemctl mask tmp.mount 
+
+dnf localinstall -y patchelf-0.12-1.el8.x86_64.rpm
 
 echo
 echo ' preinstall done'
