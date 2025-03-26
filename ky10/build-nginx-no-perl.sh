@@ -716,8 +716,7 @@ yum install -y perl-libs
 
 _build_nginx
 
-rm -fr /tmp/_output
-mkdir /tmp/_output
+mkdir -p /tmp/_output
 mv -f /tmp/nginx-*.tar* /tmp/_output/
 
 echo
