@@ -118,7 +118,7 @@ _build_libxml2() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    rm -f /usr/lib/x86_64-linux-gnu/libxml2.*
+    #rm -f /usr/lib/x86_64-linux-gnu/libxml2.*
     sleep 2
     /bin/cp -afr * /
     sleep 2
