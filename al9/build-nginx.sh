@@ -118,7 +118,7 @@ _build_libxml2() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib64/*.so* "${_private_dir}"/
-    rm -f /usr/lib64/libxml2.*
+    #rm -f /usr/lib64/libxml2.*
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -741,7 +741,6 @@ chmod 0644 etc/sysconfig/nginx
 rm -fr /usr/lib64/nginx
 
 _build_zlib
-dnf install -y libxml2
 _build_libxml2
 _build_libxslt
 _build_libmaxminddb
