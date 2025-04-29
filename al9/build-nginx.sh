@@ -744,6 +744,13 @@ _build_zlib
 _build_libxml2
 _build_libxslt
 _build_libmaxminddb
+
+echo #
+ls -la /usr/lib64/libxml2.so*
+echo #
+ldd ldd /usr/bin/cmake
+echo #
+
 _build_brotli
 _build_zstd
 #_build_openssl33
