@@ -343,6 +343,54 @@ _build_openssl33() {
     /sbin/ldconfig
 }
 
+_build_openssl35() {
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _openssl35_ver="$(wget -qO- 'https://openssl-library.org/source/index.html' | grep 'openssl-3\.5\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.5\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 https://github.com/openssl/openssl/releases/download/openssl-${_openssl35_ver}/openssl-${_openssl35_ver}.tar.gz
+    tar -xof openssl-*.tar*
+    sleep 1
+    rm -f openssl-*.tar*
+    cd openssl-*
+    sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
+    LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
+    HASHBANGPERL=/usr/bin/perl
+    ./Configure \
+    --prefix=/usr \
+    --libdir=/usr/lib64 \
+    --openssldir=/etc/pki/tls \
+    enable-zlib enable-zstd enable-brotli \
+    enable-argon2 enable-tls1_3 threads \
+    enable-camellia enable-seed \
+    enable-rfc3779 enable-sctp enable-cms \
+    enable-ec enable-ecdh enable-ecdsa \
+    enable-ec_nistp_64_gcc_128 \
+    enable-poly1305 enable-ktls enable-quic \
+    enable-md2 enable-rc5 \
+    no-mdc2 no-ec2m \
+    no-sm2 no-sm2-precomp no-sm3 no-sm4 \
+    shared linux-x86_64 '-DDEVRANDOM="\"/dev/urandom\""'
+    perl configdata.pm --dump
+    make -j$(nproc --all) all
+    rm -fr /tmp/openssl35
+    make DESTDIR=/tmp/openssl35 install_sw
+    cd /tmp/openssl35
+    sed 's|http://|https://|g' -i usr/lib64/pkgconfig/*.pc
+    _strip_files
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib64/*.so* "${_private_dir}"/
+    rm -fr /usr/include/openssl
+    rm -fr /usr/include/x86_64-linux-gnu/openssl
+    sleep 2
+    /bin/cp -afr * /
+    sleep 2
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/openssl35
+    /sbin/ldconfig
+}
+
 _build_pcre2() {
     /sbin/ldconfig
     set -e
@@ -386,7 +434,10 @@ _build_nginx() {
     set -e
     _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
-    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.26' | tail -n 1)"
+    # 1.26
+    #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.26' | tail -n 1)"
+    # 1.28
+    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.28' | tail -n 1)"
     #wget -c -t 9 -T 9 "https://github.com/nginx/nginx/archive/refs/tags/release-${_nginx_ver}.tar.gz"
     #tar -xof release*.tar*
     wget -c -t 9 -T 9 "https://nginx.org/download/nginx-${_nginx_ver}.tar.gz"
@@ -445,7 +496,7 @@ _build_nginx() {
 
     cd nginx-*
     _vmajor=2
-    _vminor=6
+    _vminor=8
     _vpatch=13
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
@@ -695,7 +746,8 @@ _build_libxslt
 _build_libmaxminddb
 _build_brotli
 _build_zstd
-_build_openssl33
+#_build_openssl33
+_build_openssl35
 _build_pcre2
 _build_nginx
 
