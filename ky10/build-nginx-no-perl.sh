@@ -759,7 +759,7 @@ chmod 0644 etc/sysconfig/nginx
 #_build_libmaxminddb
 #_build_brotli
 #_build_zstd
-#_build_openssl33
+#_build_openssl35
 #_build_pcre2
 
 yum remove -y perl-devel
