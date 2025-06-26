@@ -441,9 +441,11 @@ _build_nginx() {
     # 1.26
     #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.26' | tail -n 1)"
     # 1.28
-    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.28' | tail -n 1)"
-    #wget -c -t 9 -T 9 "https://github.com/nginx/nginx/archive/refs/tags/release-${_nginx_ver}.tar.gz"
-    #tar -xof release*.tar*
+    #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.28' | tail -n 1)"
+
+    # 1.29
+    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.29' | tail -n 1)"
+
     wget -c -t 9 -T 9 "https://nginx.org/download/nginx-${_nginx_ver}.tar.gz"
     tar -xof nginx*.tar*
     sleep 1
@@ -501,7 +503,7 @@ _build_nginx() {
 
     cd nginx-*
     _vmajor=2
-    _vminor=8
+    _vminor=9
     _vpatch=10
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
