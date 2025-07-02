@@ -20,6 +20,12 @@ jobs:
           sudo /bin/rm -fr /tmp/*
           sudo /bin/bash scripts/install-docker.sh
 
+      - name: Build nginx ub2204
+        run: |
+          sudo /bin/bash run-build-ub2204.sh
+          sudo /bin/systemctl stop docker.socket docker.service containerd.service
+          sudo /bin/rm -fr /var/lib/docker/* /var/lib/containerd/* /mnt/docker-data/*
+
       - name: Build nginx al9
         run: |
           sudo /bin/bash run-build-al9.sh
@@ -29,12 +35,6 @@ jobs:
       - name: Build nginx al8
         run: |
           sudo /bin/bash run-build-al8.sh
-          sudo /bin/systemctl stop docker.socket docker.service containerd.service
-          sudo /bin/rm -fr /var/lib/docker/* /var/lib/containerd/* /mnt/docker-data/*
-
-      - name: Build nginx ub2204
-        run: |
-          sudo /bin/bash run-build-ub2204.sh
           sudo /bin/systemctl stop docker.socket docker.service containerd.service
           sudo /bin/rm -fr /var/lib/docker/* /var/lib/containerd/* /mnt/docker-data/*
 
