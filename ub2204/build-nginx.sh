@@ -282,6 +282,7 @@ _build_zstd() {
     cd /tmp/zstd
     ln -svf zstd.1 usr/share/man/man1/pzstd.1
     _strip_files
+    find ./
     find usr/lib/x86_64-linux-gnu/ -type f -iname '*.so*' | xargs -I '{}' chrpath -r '$ORIGIN' '{}'
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
