@@ -59,6 +59,26 @@ _strip_files() {
     echo
 }
 
+_install_go() {
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    # Latest version of go
+    #_go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
+
+    # go1.24.X
+    _go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | grep '^1\.24\.' | tail -n 1)"
+
+    wget -q -c -t 0 -T 9 "https://dl.google.com/go/go${_go_version}.linux-amd64.tar.gz"
+    rm -fr /usr/local/go
+    sleep 1
+    install -m 0755 -d /usr/local/go
+    tar -xof "go${_go_version}.linux-amd64.tar.gz" --strip-components=1 -C /usr/local/go/
+    sleep 1
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+}
+
 _build_zlib() {
     /sbin/ldconfig
     set -e
@@ -390,6 +410,65 @@ _build_openssl35() {
     /sbin/ldconfig
 }
 
+_build_aws-lc() {
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _aws_lc_tag="$(wget -qO- 'https://github.com/aws/aws-lc/tags' | grep -i 'href="/.*/releases/tag/' | sed 's|"|\n|g' | grep -i '/releases/tag/' | sed 's|.*/tag/||g' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 "https://github.com/aws/aws-lc/archive/refs/tags/${_aws_lc_tag}.tar.gz"
+    tar -xof *.tar*
+    sleep 1
+    rm -f *.tar*
+    cd aws*
+    # Go programming language
+    export GOROOT='/usr/local/go'
+    export GOPATH="$GOROOT/home"
+    export GOTMPDIR='/tmp'
+    export GOBIN="$GOROOT/bin"
+    export PATH="$GOROOT/bin:$PATH"
+    alias go="$GOROOT/bin/go"
+    alias gofmt="$GOROOT/bin/gofmt"
+    rm -fr ~/.cache/go-build
+    echo
+    go version
+    echo
+    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$ORIGIN'; export LDFLAGS
+    cmake \
+    -GNinja \
+    -S "." \
+    -B "aws-lc-build" \
+    -DCMAKE_BUILD_TYPE='Release' \
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DINCLUDE_INSTALL_DIR:PATH=/usr/include \
+    -DLIB_INSTALL_DIR:PATH=/usr/lib64 \
+    -DSYSCONF_INSTALL_DIR:PATH=/etc \
+    -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+    -DLIB_SUFFIX=64 \
+    -DBUILD_SHARED_LIBS:BOOL=ON \
+    -DCMAKE_INSTALL_SO_NO_EXE:INTERNAL=0
+    cmake --build "aws-lc-build" --parallel $(nproc --all) --verbose
+    rm -fr /tmp/aws-lc
+    DESTDIR="/tmp/aws-lc" cmake --install "aws-lc-build"
+    cd /tmp/aws-lc
+    sed 's|http://|https://|g' -i usr/lib64/pkgconfig/*.pc
+    _strip_files
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib64/*.so* "${_private_dir}"/
+    rm -vf usr/bin/openssl
+    rm -vf usr/bin/c_rehash
+    rm -fr /usr/include/openssl
+    rm -vf /usr/lib64/libssl.so
+    rm -vf /usr/lib64/libcrypto.so
+    sleep 2
+    /bin/cp -afr * /
+    sleep 2
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/aws-lc
+    /sbin/ldconfig
+}
+
 _build_pcre2() {
     /sbin/ldconfig
     set -e
@@ -496,6 +575,12 @@ _build_nginx() {
     cd ..
 
     cd nginx-*
+    # apply aws-lc patch
+    rm -fr /tmp/aws-lc-nginx.patch
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/nginx-patches/aws-lc-nginx-1.29.0.patch' -O /tmp/aws-lc-nginx.patch
+    patch -N -p 1 -i /tmp/aws-lc-nginx.patch
+    sleep 1
+    rm -f /tmp/aws-lc-nginx.patch
     _vmajor=2
     _vminor=9
     _vpatch=10
@@ -506,14 +591,8 @@ _build_nginx() {
     sed 's@"nginx/"@"gws-v"@g' -i src/core/nginx.h
     sed 's@Server: nginx@Server: gws@g' -i src/http/ngx_http_header_filter_module.c
     sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
-
-    #_http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-    #_stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-
-    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
-    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
-
-
+    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     LDFLAGS=''; export LDFLAGS
     #./auto/configure \
     ./configure \
@@ -586,8 +665,6 @@ _build_nginx() {
     _strip_files
     install -m 0755 -d usr/lib64/nginx
     cp -afr /"${_private_dir}" usr/lib64/nginx/
-    if /bin/ls "/usr/lib64/libstdc++.so"* >/dev/null 2>&1; then /bin/cp -afv "/usr/lib64/libstdc++.so"* "${_private_dir}"/; fi
-
     #patchelf --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     patchelf --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     echo
@@ -657,6 +734,8 @@ rm -fr /etc/nginx/conf.d
 rm -fr /var/lib/nginx
 rm -fr /var/log/nginx
 rm -fr /usr/lib64/nginx
+rm -fr /usr/lib64/perl5/auto/nginx
+rm -f /usr/lib64/perl5/nginx.pm
 rm -f /etc/nginx/nginx.service
 systemctl daemon-reload >/dev/null 2>&1 || : 
 ' > etc/nginx/.del.txt
@@ -732,11 +811,11 @@ chmod 0644 etc/sysconfig/nginx
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/opt.conf' -O etc/nginx/conf.d/opt.conf.example
     chmod 0644 etc/nginx/conf.d/*conf*
     sleep 2
-    tar -Jcvf /tmp/nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz *
+    tar -Jcvf /tmp/nginx-"${_nginx_ver}"_"awslc${_aws_lc_tag/v/}"-1_el8_amd64.tar.xz *
     echo
     sleep 2
     cd /tmp
-    openssl dgst -r -sha256 nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz.sha256
+    openssl dgst -r -sha256 nginx-"${_nginx_ver}"_"awslc${_aws_lc_tag/v/}"-1_el8_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"_"awslc${_aws_lc_tag/v/}"-1_el8_amd64.tar.xz.sha256
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/nginx
     /sbin/ldconfig
@@ -744,27 +823,30 @@ chmod 0644 etc/sysconfig/nginx
 
 ############################################################################
 
-yum remove -y perl-devel
-yum install -y perl-libs
+rm -fr /usr/lib64/nginx
 
-#rm -fr /usr/lib64/nginx
+_build_zlib
+_build_libxml2
+_build_libxslt
+_build_libmaxminddb
+_build_brotli
 
-#_build_zlib
-#_build_libxml2
-#_build_libxslt
-#_build_libmaxminddb
-#_build_brotli
 #_build_zstd
+#_build_openssl33
 #_build_openssl35
-#_build_pcre2
 
+_install_go
+_build_aws-lc
+
+_build_pcre2
 _build_nginx
 
-mkdir -p /tmp/_output
+rm -fr /tmp/_output
+mkdir /tmp/_output
 mv -f /tmp/nginx-*.tar* /tmp/_output/
 
 echo
-echo ' build nginx done'
+echo ' build nginx aws-lc al8 done'
 echo
 exit
 

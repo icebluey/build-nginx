@@ -29,5 +29,58 @@ docker exec al8 /bin/bash /home/al8/build-nginx.sh
 docker exec al8 /bin/bash /home/al8/build-nginx-no-perl.sh
 mkdir -p /tmp/_output_assets
 docker cp al8:/tmp/_output /tmp/_output_assets/
+
+###############################################################################
+sleep 2
+docker stop al8 >/dev/null 2>&1
+sleep 2
+docker rm -f al8 >/dev/null 2>&1
+sleep 2
+if [ "$(cat /proc/cpuinfo | grep -i '^processor' | wc -l)" -gt 1 ]; then
+    #docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd almalinux:8 bash
+    docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd quay.io/almalinuxorg/almalinux:8 bash
+else
+    #docker run --rm --name al8 -itd almalinux:8 bash
+    docker run --rm --name al8 -itd quay.io/almalinuxorg/almalinux:8 bash
+fi
+sleep 2
+docker exec al8 yum clean all
+docker exec al8 yum makecache
+docker exec al8 yum install -y wget bash
+docker exec al8 /bin/bash -c 'ln -svf bash /bin/sh'
+docker exec al8 /bin/bash -c 'rm -fr /tmp/*'
+docker cp al8 al8:/home/
+#docker exec al8 /bin/bash /home/al8/install-kernel.sh
+docker exec al8 /bin/bash /home/al8/.preinstall_al8
+docker exec al8 /bin/bash /home/al8/build-nginx-aws-lc.sh
+mkdir -p /tmp/_output_assets
+docker cp al8:/tmp/_output /tmp/_output_assets/
+
+###############################################################################
+sleep 2
+docker stop al8 >/dev/null 2>&1
+sleep 2
+docker rm -f al8 >/dev/null 2>&1
+sleep 2
+if [ "$(cat /proc/cpuinfo | grep -i '^processor' | wc -l)" -gt 1 ]; then
+    #docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd almalinux:8 bash
+    docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd quay.io/almalinuxorg/almalinux:8 bash
+else
+    #docker run --rm --name al8 -itd almalinux:8 bash
+    docker run --rm --name al8 -itd quay.io/almalinuxorg/almalinux:8 bash
+fi
+sleep 2
+docker exec al8 yum clean all
+docker exec al8 yum makecache
+docker exec al8 yum install -y wget bash
+docker exec al8 /bin/bash -c 'ln -svf bash /bin/sh'
+docker exec al8 /bin/bash -c 'rm -fr /tmp/*'
+docker cp al8 al8:/home/
+#docker exec al8 /bin/bash /home/al8/install-kernel.sh
+docker exec al8 /bin/bash /home/al8/.preinstall_al8
+docker exec al8 /bin/bash /home/al8/build-nginx-no-perl-aws-lc.sh
+mkdir -p /tmp/_output_assets
+docker cp al8:/tmp/_output /tmp/_output_assets/
+
 exit
 

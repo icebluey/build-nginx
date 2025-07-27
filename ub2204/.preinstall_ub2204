@@ -35,6 +35,8 @@ apt install -y libncurses-dev libreadline-dev libldap2-dev libsqlite3-dev libusb
 apt install -y libedit-dev libssh2-1-dev libpam0g-dev libsystemd-dev groff-base
 # build haproxy
 apt install -y libsystemd-dev libcrypt-dev
+# build aws-lc
+apt install -y cmake ninja-build clang perl
 
 # run keepalived
 apt install -y libnl-3-200 libnl-genl-3-200 libsnmp-dev libnftnl11 libsystemd0

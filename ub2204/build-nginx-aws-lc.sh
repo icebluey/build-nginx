@@ -14,7 +14,7 @@ CXX=g++
 export CXX
 /sbin/ldconfig
 
-_private_dir='usr/lib64/nginx/private'
+_private_dir='usr/lib/x86_64-linux-gnu/nginx/private'
 
 set -e
 
@@ -59,6 +59,26 @@ _strip_files() {
     echo
 }
 
+_install_go() {
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    # Latest version of go
+    #_go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
+
+    # go1.24.X
+    _go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | grep '^1\.24\.' | tail -n 1)"
+
+    wget -q -c -t 0 -T 9 "https://dl.google.com/go/go${_go_version}.linux-amd64.tar.gz"
+    rm -fr /usr/local/go
+    sleep 1
+    install -m 0755 -d /usr/local/go
+    tar -xof "go${_go_version}.linux-amd64.tar.gz" --strip-components=1 -C /usr/local/go/
+    sleep 1
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+}
+
 _build_zlib() {
     /sbin/ldconfig
     set -e
@@ -70,16 +90,16 @@ _build_zlib() {
     sleep 1
     rm -f zlib-*.tar*
     cd zlib-*
-    ./configure --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --64
+    ./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --64
     make -j$(nproc --all) all
     rm -fr /tmp/zlib
     make DESTDIR=/tmp/zlib install
     cd /tmp/zlib
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
-    /bin/rm -f /usr/lib64/libz.so*
-    /bin/rm -f /usr/lib64/libz.a
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    /bin/rm -f /usr/lib/x86_64-linux-gnu/libz.so*
+    /bin/rm -f /usr/lib/x86_64-linux-gnu/libz.a
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -106,7 +126,7 @@ _build_libxml2() {
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
     --with-legacy --with-ftp --with-xptr-locs --without-python \
-    --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --sysconfdir=/etc
+    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
     sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
     make -j$(nproc --all) all
     rm -fr /tmp/libxml2
@@ -117,8 +137,8 @@ _build_libxml2() {
     rm -fr usr/share/doc
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
-    #rm -f /usr/lib64/libxml2.*
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    #rm -f /usr/lib/x86_64-linux-gnu/libxml2.*
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -144,7 +164,7 @@ _build_libxslt() {
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
     --without-python --without-crypto \
-    --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --sysconfdir=/etc
+    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
     sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
     make -j$(nproc --all) all
     rm -fr /tmp/libxslt
@@ -155,9 +175,9 @@ _build_libxslt() {
     rm -fr usr/share/doc
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
-    rm -f /usr/lib64/libxslt.*
-    rm -f /usr/lib64/libexslt.*
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    rm -f /usr/lib/x86_64-linux-gnu/libxslt.*
+    rm -f /usr/lib/x86_64-linux-gnu/libexslt.*
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -182,14 +202,14 @@ _build_libmaxminddb() {
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --disable-static \
-    --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --sysconfdir=/etc
+    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
     make -j$(nproc --all) all
     rm -fr /tmp/libmaxminddb
     make install DESTDIR=/tmp/libmaxminddb
     cd /tmp/libmaxminddb
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -214,7 +234,7 @@ _build_brotli() {
         ./configure \
         --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
         --enable-shared --disable-static \
-        --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --sysconfdir=/etc
+        --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
         make -j$(nproc --all) all
         rm -fr /tmp/brotli
         make install DESTDIR=/tmp/brotli
@@ -227,7 +247,7 @@ _build_brotli() {
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
         -DCMAKE_INSTALL_PREFIX:PATH=/usr \
         -DINCLUDE_INSTALL_DIR:PATH=/usr/include \
-        -DLIB_INSTALL_DIR:PATH=/usr/lib64 \
+        -DLIB_INSTALL_DIR:PATH=/usr/lib/x86_64-linux-gnu \
         -DSYSCONF_INSTALL_DIR:PATH=/etc \
         -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
         -DLIB_SUFFIX=64 \
@@ -240,7 +260,7 @@ _build_brotli() {
     cd /tmp/brotli
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -259,32 +279,33 @@ _build_zstd() {
     cd zstd
     rm -fr .git
     sed '/^PREFIX/s|= .*|= /usr|g' -i Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib64|g' -i Makefile
+    sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i Makefile
     sed '/^prefix/s|= .*|= /usr|g' -i Makefile
-    sed '/^libdir/s|= .*|= /usr/lib64|g' -i Makefile
+    sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i Makefile
     sed '/^PREFIX/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib64|g' -i lib/Makefile
+    sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i lib/Makefile
     sed '/^prefix/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^libdir/s|= .*|= /usr/lib64|g' -i lib/Makefile
+    sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i lib/Makefile
     sed '/^PREFIX/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^LIBDIR/s|= .*|= /usr/lib64|g' -i programs/Makefile
+    #sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
     sed '/^prefix/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^libdir/s|= .*|= /usr/lib64|g' -i programs/Makefile
+    #sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
     LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$OOORIGIN'; export LDFLAGS
-    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C lib lib-mt
+    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu
+    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C lib lib-mt
     LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"; export LDFLAGS
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C programs
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C contrib/pzstd
+    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C programs
+    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C contrib/pzstd
     rm -fr /tmp/zstd
     make install DESTDIR=/tmp/zstd
     install -v -c -m 0755 contrib/pzstd/pzstd /tmp/zstd/usr/bin/
     cd /tmp/zstd
     ln -svf zstd.1 usr/share/man/man1/pzstd.1
     _strip_files
-    find usr/lib64/ -type f -iname '*.so*' | xargs -I '{}' chrpath -r '$ORIGIN' '{}'
+    find ./
+    find usr/lib/x86_64-linux-gnu/ -type f -iname '*.so*' | xargs -I '{}' chrpath -r '$ORIGIN' '{}'
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -298,26 +319,30 @@ _build_openssl33() {
     set -e
     _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
+    #_openssl33_ver="$(wget -qO- 'https://www.openssl.org/source/' | grep 'openssl-3\.3\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.3\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
+    #wget -c -t 9 -T 9 "https://www.openssl.org/source/openssl-${_openssl33_ver}.tar.gz"
     _openssl33_ver="$(wget -qO- 'https://openssl-library.org/source/index.html' | grep 'openssl-3\.3\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.3\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 https://github.com/openssl/openssl/releases/download/openssl-${_openssl33_ver}/openssl-${_openssl33_ver}.tar.gz
     tar -xof openssl-*.tar*
     sleep 1
     rm -f openssl-*.tar*
     cd openssl-*
+    # Only for debian/ubuntu
+    sed '/define X509_CERT_FILE .*OPENSSLDIR "/s|"/cert.pem"|"/certs/ca-certificates.crt"|g' -i include/internal/cryptlib.h
     sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
     LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
     HASHBANGPERL=/usr/bin/perl
     ./Configure \
     --prefix=/usr \
-    --libdir=/usr/lib64 \
-    --openssldir=/etc/pki/tls \
+    --libdir=/usr/lib/x86_64-linux-gnu \
+    --openssldir=/etc/ssl \
     enable-zlib enable-zstd enable-brotli \
     enable-argon2 enable-tls1_3 threads \
     enable-camellia enable-seed \
     enable-rfc3779 enable-sctp enable-cms \
     enable-ec enable-ecdh enable-ecdsa \
     enable-ec_nistp_64_gcc_128 \
-    enable-poly1305 no-ktls enable-quic \
+    enable-poly1305 enable-ktls enable-quic \
     enable-md2 enable-rc5 \
     no-mdc2 no-ec2m \
     no-sm2 no-sm2-precomp no-sm3 no-sm4 \
@@ -327,12 +352,18 @@ _build_openssl33() {
     rm -fr /tmp/openssl33
     make DESTDIR=/tmp/openssl33 install_sw
     cd /tmp/openssl33
-    sed 's|http://|https://|g' -i usr/lib64/pkgconfig/*.pc
+    # Only for debian/ubuntu
+    mkdir -p usr/include/x86_64-linux-gnu/openssl
+    chmod 0755 usr/include/x86_64-linux-gnu/openssl
+    install -c -m 0644 usr/include/openssl/opensslconf.h usr/include/x86_64-linux-gnu/openssl/
+    sed 's|http://|https://|g' -i usr/lib/x86_64-linux-gnu/pkgconfig/*.pc
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     rm -fr /usr/include/openssl
     rm -fr /usr/include/x86_64-linux-gnu/openssl
+    rm -fr /usr/local/openssl-1.1.1
+    rm -f /etc/ld.so.conf.d/openssl-1.1.1.conf
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -352,13 +383,15 @@ _build_openssl35() {
     sleep 1
     rm -f openssl-*.tar*
     cd openssl-*
+    # Only for debian/ubuntu
+    sed '/define X509_CERT_FILE .*OPENSSLDIR "/s|"/cert.pem"|"/certs/ca-certificates.crt"|g' -i include/internal/cryptlib.h
     sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
     LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
     HASHBANGPERL=/usr/bin/perl
     ./Configure \
     --prefix=/usr \
-    --libdir=/usr/lib64 \
-    --openssldir=/etc/pki/tls \
+    --libdir=/usr/lib/x86_64-linux-gnu \
+    --openssldir=/etc/ssl \
     enable-zlib enable-zstd enable-brotli \
     enable-argon2 enable-tls1_3 threads \
     enable-camellia enable-seed \
@@ -375,18 +408,84 @@ _build_openssl35() {
     rm -fr /tmp/openssl35
     make DESTDIR=/tmp/openssl35 install_sw
     cd /tmp/openssl35
-    sed 's|http://|https://|g' -i usr/lib64/pkgconfig/*.pc
+    # Only for debian/ubuntu
+    mkdir -p usr/include/x86_64-linux-gnu/openssl
+    chmod 0755 usr/include/x86_64-linux-gnu/openssl
+    install -c -m 0644 usr/include/openssl/opensslconf.h usr/include/x86_64-linux-gnu/openssl/
+    sed 's|http://|https://|g' -i usr/lib/x86_64-linux-gnu/pkgconfig/*.pc
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     rm -fr /usr/include/openssl
     rm -fr /usr/include/x86_64-linux-gnu/openssl
+    rm -fr /usr/local/openssl-1.1.1
+    rm -f /etc/ld.so.conf.d/openssl-1.1.1.conf
     sleep 2
     /bin/cp -afr * /
     sleep 2
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/openssl35
+    /sbin/ldconfig
+}
+
+_build_aws-lc() {
+    set -e
+    _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _aws_lc_tag="$(wget -qO- 'https://github.com/aws/aws-lc/tags' | grep -i 'href="/.*/releases/tag/' | sed 's|"|\n|g' | grep -i '/releases/tag/' | sed 's|.*/tag/||g' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 "https://github.com/aws/aws-lc/archive/refs/tags/${_aws_lc_tag}.tar.gz"
+    tar -xof *.tar*
+    sleep 1
+    rm -f *.tar*
+    cd aws*
+    # Go programming language
+    export GOROOT='/usr/local/go'
+    export GOPATH="$GOROOT/home"
+    export GOTMPDIR='/tmp'
+    export GOBIN="$GOROOT/bin"
+    export PATH="$GOROOT/bin:$PATH"
+    alias go="$GOROOT/bin/go"
+    alias gofmt="$GOROOT/bin/gofmt"
+    rm -fr ~/.cache/go-build
+    echo
+    go version
+    echo
+    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$ORIGIN'; export LDFLAGS
+    cmake \
+    -GNinja \
+    -S "." \
+    -B "aws-lc-build" \
+    -DCMAKE_BUILD_TYPE='Release' \
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DINCLUDE_INSTALL_DIR:PATH=/usr/include \
+    -DLIB_INSTALL_DIR:PATH=/usr/lib/x86_64-linux-gnu \
+    -DSYSCONF_INSTALL_DIR:PATH=/etc \
+    -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+    -DLIB_SUFFIX=64 \
+    -DBUILD_SHARED_LIBS:BOOL=ON \
+    -DCMAKE_INSTALL_SO_NO_EXE:INTERNAL=0
+    cmake --build "aws-lc-build" --parallel $(nproc --all) --verbose
+    rm -fr /tmp/aws-lc
+    DESTDIR="/tmp/aws-lc" cmake --install "aws-lc-build"
+    cd /tmp/aws-lc
+    sed 's|http://|https://|g' -i usr/lib/x86_64-linux-gnu/pkgconfig/*.pc
+    _strip_files
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    rm -vf usr/bin/openssl
+    rm -vf usr/bin/c_rehash
+    rm -fr /usr/include/openssl
+    rm -fr /usr/include/x86_64-linux-gnu/openssl
+    rm -vf /usr/lib/x86_64-linux-gnu/libssl.so
+    rm -vf /usr/lib/x86_64-linux-gnu/libcrypto.so
+    sleep 2
+    /bin/cp -afr * /
+    sleep 2
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/aws-lc
     /sbin/ldconfig
 }
 
@@ -407,7 +506,7 @@ _build_pcre2() {
     --enable-shared --enable-static \
     --enable-pcre2-8 --enable-pcre2-16 --enable-pcre2-32 \
     --enable-jit --enable-unicode \
-    --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --sysconfdir=/etc
+    --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
     sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
     make -j$(nproc --all) all
     rm -fr /tmp/pcre2
@@ -416,7 +515,7 @@ _build_pcre2() {
     rm -fr usr/share/doc/pcre2/html
     _strip_files
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
+    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     sleep 2
     /bin/cp -afr * /
     sleep 2
@@ -461,8 +560,8 @@ _build_nginx() {
     
         git clone "https://github.com/apache/incubator-pagespeed-ngx.git" ngx_pagespeed
         #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
-        wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
-        #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
+        #wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
+        wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
         tar -xof psol*.tar* -C ngx_pagespeed/
         sleep 1
         rm -f psol*.tar.gz
@@ -482,8 +581,8 @@ _build_nginx() {
     
         git clone "https://github.com/icebluey/incubator-pagespeed-ngx.git" ngx_pagespeed
         #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
-        wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
-        #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
+        #wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
+        wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
         tar -xof psol*.tar* -C ngx_pagespeed/
         sleep 1
         rm -f psol*.tar.gz
@@ -496,6 +595,12 @@ _build_nginx() {
     cd ..
 
     cd nginx-*
+    # apply aws-lc patch
+    rm -fr /tmp/aws-lc-nginx.patch
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/nginx-patches/aws-lc-nginx-1.29.0.patch' -O /tmp/aws-lc-nginx.patch
+    patch -N -p 1 -i /tmp/aws-lc-nginx.patch
+    sleep 1
+    rm -f /tmp/aws-lc-nginx.patch
     _vmajor=2
     _vminor=9
     _vpatch=10
@@ -506,21 +611,15 @@ _build_nginx() {
     sed 's@"nginx/"@"gws-v"@g' -i src/core/nginx.h
     sed 's@Server: nginx@Server: gws@g' -i src/http/ngx_http_header_filter_module.c
     sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
-
-    #_http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-    #_stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-
-    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
-    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -ivE 'geoip|perl' | paste -sd' ')"
-
-
+    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     LDFLAGS=''; export LDFLAGS
     #./auto/configure \
     ./configure \
     --build=x86_64-linux-gnu \
     --prefix=/usr/share/nginx \
     --sbin-path=/usr/sbin/nginx \
-    --modules-path=/usr/lib64/nginx/modules \
+    --modules-path=/usr/lib/x86_64-linux-gnu/nginx/modules \
     --conf-path=/etc/nginx/nginx.conf \
     --error-log-path=/var/log/nginx/error.log \
     --http-log-path=/var/log/nginx/access.log \
@@ -562,7 +661,7 @@ _build_nginx() {
     #install -m 0755 -d var/www/html
     #install -m 0755 -d var/lib/nginx/tmp
     #install -m 0700 -d var/log/nginx
-    install -m 0755 -d usr/lib64/nginx/modules
+    install -m 0755 -d usr/lib/x86_64-linux-gnu/nginx/modules
     install -m 0755 -d etc/sysconfig
     #install -m 0755 -d usr/lib/systemd/system
     #install -m 0755 -d etc/systemd/system/nginx.service.d
@@ -584,12 +683,9 @@ _build_nginx() {
     sed '/ root .* html;/s@html;@/var/www/html;@g' -i etc/nginx/nginx.conf.default
     rm -fr etc/nginx/nginx.conf*
     _strip_files
-    install -m 0755 -d usr/lib64/nginx
-    cp -afr /"${_private_dir}" usr/lib64/nginx/
-    if /bin/ls "/usr/lib64/libstdc++.so"* >/dev/null 2>&1; then /bin/cp -afv "/usr/lib64/libstdc++.so"* "${_private_dir}"/; fi
-
-    #patchelf --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
-    patchelf --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
+    install -m 0755 -d usr/lib/x86_64-linux-gnu/nginx
+    cp -afr /"${_private_dir}" usr/lib/x86_64-linux-gnu/nginx/
+    patchelf --add-rpath '$ORIGIN/../lib/x86_64-linux-gnu/nginx/private' usr/sbin/nginx
     echo
     find /tmp/nginx -type f -name .packlist -exec rm -vf '{}' \;
     find /tmp/nginx -type f -name perllocal.pod -exec rm -vf '{}' \;
@@ -634,7 +730,7 @@ groupdel nginx >/dev/null 2>&1 || :
 rm -f /usr/sbin/nginx
 rm -f /lib/systemd/system/nginx.service
 rm -fr /usr/share/nginx
-rm -f /usr/share/man/man3/nginx.*
+rm -f /usr/share/man/man3/nginx.3*
 rm -fr /etc/systemd/system/nginx.service.d
 rm -f /etc/logrotate.d/nginx
 rm -f /etc/sysconfig/nginx
@@ -656,7 +752,11 @@ rm -fr /etc/nginx/geoip
 rm -fr /etc/nginx/conf.d
 rm -fr /var/lib/nginx
 rm -fr /var/log/nginx
-rm -fr /usr/lib64/nginx
+rm -fr /usr/lib/x86_64-linux-gnu/nginx
+rm -fr /usr/lib/x86_64-linux-gnu/perl/5.30.0/auto/nginx
+rm -f /usr/lib/x86_64-linux-gnu/perl/5.30.0/nginx.pm
+rm -fr /usr/lib/x86_64-linux-gnu/perl/5.34.0/auto/nginx
+rm -f /usr/lib/x86_64-linux-gnu/perl/5.34.0/nginx.pm
 rm -f /etc/nginx/nginx.service
 systemctl daemon-reload >/dev/null 2>&1 || : 
 ' > etc/nginx/.del.txt
@@ -732,11 +832,11 @@ chmod 0644 etc/sysconfig/nginx
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/opt.conf' -O etc/nginx/conf.d/opt.conf.example
     chmod 0644 etc/nginx/conf.d/*conf*
     sleep 2
-    tar -Jcvf /tmp/nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz *
+    tar -Jcvf /tmp/nginx-"${_nginx_ver}"_"awslc${_aws_lc_tag/v/}"-1_ub2204_amd64.tar.xz *
     echo
     sleep 2
     cd /tmp
-    openssl dgst -r -sha256 nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-no-perl-1_el8_amd64.tar.xz.sha256
+    openssl dgst -r -sha256 nginx-"${_nginx_ver}"_"awslc${_aws_lc_tag/v/}"-1_ub2204_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"_"awslc${_aws_lc_tag/v/}"-1_ub2204_amd64.tar.xz.sha256
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/nginx
     /sbin/ldconfig
@@ -744,27 +844,30 @@ chmod 0644 etc/sysconfig/nginx
 
 ############################################################################
 
-yum remove -y perl-devel
-yum install -y perl-libs
+rm -fr /usr/lib/x86_64-linux-gnu/nginx
 
-#rm -fr /usr/lib64/nginx
+_build_zlib
+_build_libxml2
+_build_libxslt
+_build_libmaxminddb
+_build_brotli
 
-#_build_zlib
-#_build_libxml2
-#_build_libxslt
-#_build_libmaxminddb
-#_build_brotli
 #_build_zstd
+#_build_openssl33
 #_build_openssl35
-#_build_pcre2
 
+_install_go
+_build_aws-lc
+
+_build_pcre2
 _build_nginx
 
-mkdir -p /tmp/_output
+rm -fr /tmp/_output
+mkdir /tmp/_output
 mv -f /tmp/nginx-*.tar* /tmp/_output/
 
 echo
-echo ' build nginx done'
+echo ' build nginx aws-lc ub2204 done'
 echo
 exit
 
