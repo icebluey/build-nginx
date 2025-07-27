@@ -28,9 +28,9 @@ docker cp ub2204:/tmp/_output /tmp/_output_assets/
 
 ###############################################################################
 sleep 2
-docker stop ub2204 >/dev/null 2>&1
+docker stop ub2204 >/dev/null 2>&1 || true
 sleep 2
-docker rm -f ub2204 >/dev/null 2>&1
+docker rm -f ub2204 >/dev/null 2>&1 || true
 sleep 2
 if [ "$(cat /proc/cpuinfo | grep -i '^processor' | wc -l)" -gt 1 ]; then
     docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name ub2204 -itd ubuntu:22.04 bash
