@@ -47,6 +47,10 @@ http {
     brotli_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript image/svg+xml;
 
     server {
+        listen                     8443 quic reuseport;
+        listen                     [::]:8443 quic reuseport;
+        http3                      on;
+        quic_retry                 on;
         listen                     8443 ssl;
         listen                     [::]:8443 ssl;
         http2                      on;
@@ -58,29 +62,39 @@ http {
 
         ssl_protocols              TLSv1.3;
         ssl_prefer_server_ciphers  off;
-        ssl_ecdh_curve             X25519:secp384r1:secp521r1;
-        ssl_dhparam                /root/.ssl/dhparam.pem;
+        ssl_ecdh_curve             X25519MLKEM768:X25519;
         ssl_certificate            /root/.ssl/cert.crt;
         ssl_certificate_key        /root/.ssl/privkey.pem;
-        ssl_conf_command           Options KTLS;
+        #ssl_dhparam                /root/.ssl/dhparam.pem;
+        #ssl_conf_command           Options KTLS;
         resolver                   127.0.0.1;
         ssl_session_cache          shared:SSL:20m;
         ssl_session_timeout        100800s;
         ssl_session_tickets        off;
         ssl_early_data             on;
-        ssl_stapling               on;
-        ssl_stapling_verify        on;
+        #ssl_stapling               on;
+        #ssl_stapling_verify        on;
 
         add_header Cache-Control "private, max-age=0" always;
         add_header X-XSS-Protection "1; mode=block" always;
         add_header X-Frame-Options SAMEORIGIN always;
         add_header X-Content-Type-Options nosniff always;
+        add_header X-protocol $server_protocol always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Permissions-Policy interest-cohort=();
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+        add_header Alt-Svc 'h3=":$server_port"; ma=86400';
 
         location / {
-            #add_header Alt-Svc 'h3=":$server_port"; ma=86400';
+            add_header Cache-Control "private, max-age=0" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+            add_header X-Frame-Options SAMEORIGIN always;
+            add_header X-Content-Type-Options nosniff always;
             add_header X-protocol $server_protocol always;
+            add_header Referrer-Policy strict-origin-when-cross-origin always;
             add_header Permissions-Policy interest-cohort=();
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+            add_header Alt-Svc 'h3=":$server_port"; ma=86400';
             root   /var/www/html;
             index  index.html index.htm index.php;
         }
