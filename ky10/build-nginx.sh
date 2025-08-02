@@ -467,15 +467,16 @@ _build_nginx() {
         git clone "https://github.com/openresty/memc-nginx-module.git" ngx_http_memc_module
         git clone "https://github.com/openresty/echo-nginx-module.git" ngx_http_echo_module
         git clone "https://github.com/openresty/headers-more-nginx-module.git" ngx_http_headers_more_filter_module
+
+        git clone "https://github.com/vozlt/nginx-module-vts.git" ngx_vts_module
     
         #git clone "https://github.com/apache/incubator-pagespeed-ngx.git" ngx_pagespeed
         #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
-        wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
+        #wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
         #tar -xof psol*.tar* -C ngx_pagespeed/
-        sleep 1
-        rm -f psol*.tar.gz
-        git clone "https://github.com/vozlt/nginx-module-vts.git" ngx_vts_module
+        #sleep 1
+        #rm -f psol*.tar.gz
     }
 
     _dl_modules_me() {
@@ -492,11 +493,11 @@ _build_nginx() {
     
         #git clone "https://github.com/icebluey/incubator-pagespeed-ngx.git" ngx_pagespeed
         #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
-        wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
+        #wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
         #tar -xof psol*.tar* -C ngx_pagespeed/
-        sleep 1
-        rm -f psol*.tar.gz
+        #sleep 1
+        #rm -f psol*.tar.gz
     }
 
     mkdir modules
