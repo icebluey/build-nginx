@@ -651,9 +651,9 @@ _build_nginx() {
     --add-module=../modules/ngx_http_substitutions_filter_module \
     --add-module=../modules/ngx_http_naxsi_module/naxsi_src \
     --add-module=../modules/ngx_rtmp_module \
-    --add-module=../modules/ngx_pagespeed \
     --with-cc-opt='-g -O2 -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
     --with-ld-opt='-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie'
+    # --add-module=../modules/ngx_pagespeed \
     make -j$(nproc --all)
     rm -fr /tmp/nginx
     make install DESTDIR=/tmp/nginx
