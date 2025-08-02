@@ -78,6 +78,9 @@ yum install -y cmake3 ninja-build clang perl
 
 yum install -y dracut ; yum update -y dracut
 
+# gcc-toolset-14
+yum install -y gcc-toolset-14-annobin-plugin-gcc gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ gcc-toolset-14-binutils scl-utils
+
 /sbin/ldconfig >/dev/null 2>&1
 echo
 echo ' preinstall 9 done'
