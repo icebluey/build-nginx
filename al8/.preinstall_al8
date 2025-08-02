@@ -93,6 +93,9 @@ patch --verbose -d /usr/lib/dracut/modules.d/00systemd -N -p1 -i /tmp/remove_sys
 sleep 1
 rm -f /tmp/remove_sysctl_modules-load.d_from_initramfs.patch
 
+# gcc-toolset-14
+yum install -y gcc-toolset-14-annobin-plugin-gcc gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ gcc-toolset-14-binutils scl-utils
+
 /sbin/ldconfig >/dev/null 2>&1
 
 echo
