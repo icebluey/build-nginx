@@ -468,11 +468,11 @@ _build_nginx() {
         git clone "https://github.com/openresty/echo-nginx-module.git" ngx_http_echo_module
         git clone "https://github.com/openresty/headers-more-nginx-module.git" ngx_http_headers_more_filter_module
     
-        git clone "https://github.com/apache/incubator-pagespeed-ngx.git" ngx_pagespeed
+        #git clone "https://github.com/apache/incubator-pagespeed-ngx.git" ngx_pagespeed
         #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
-        tar -xof psol*.tar* -C ngx_pagespeed/
+        #tar -xof psol*.tar* -C ngx_pagespeed/
         sleep 1
         rm -f psol*.tar.gz
         git clone "https://github.com/vozlt/nginx-module-vts.git" ngx_vts_module
@@ -490,11 +490,11 @@ _build_nginx() {
         git clone "https://github.com/icebluey/echo-nginx-module.git" ngx_http_echo_module
         git clone "https://github.com/icebluey/headers-more-nginx-module.git" ngx_http_headers_more_filter_module
     
-        git clone "https://github.com/icebluey/incubator-pagespeed-ngx.git" ngx_pagespeed
+        #git clone "https://github.com/icebluey/incubator-pagespeed-ngx.git" ngx_pagespeed
         #wget -c "https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
-        tar -xof psol*.tar* -C ngx_pagespeed/
+        #tar -xof psol*.tar* -C ngx_pagespeed/
         sleep 1
         rm -f psol*.tar.gz
     }
@@ -556,7 +556,6 @@ _build_nginx() {
     --add-module=../modules/ngx_http_substitutions_filter_module \
     --add-module=../modules/ngx_http_naxsi_module/naxsi_src \
     --add-module=../modules/ngx_rtmp_module \
-    --add-module=../modules/ngx_pagespeed \
     --add-module=../modules/ngx_vts_module \
     --with-cc-opt='-g -O2 -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
     --with-ld-opt='-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie'
