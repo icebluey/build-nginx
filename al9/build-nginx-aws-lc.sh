@@ -581,13 +581,13 @@ _build_nginx() {
     cd nginx-*
     # apply aws-lc patch
     rm -fr /tmp/aws-lc-nginx.patch
-    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/nginx-patches/aws-lc-nginx-1.29.0.patch' -O /tmp/aws-lc-nginx.patch
+    wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/nginx-patches/aws-lc-nginx-1.29.1.patch' -O /tmp/aws-lc-nginx.patch
     patch -N -p 1 -i /tmp/aws-lc-nginx.patch
     sleep 1
     rm -f /tmp/aws-lc-nginx.patch
     _vmajor=2
     _vminor=9
-    _vpatch=10
+    _vpatch=11
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
     sed "s@#define nginx_version.*@#define nginx_version      ${_longver}@g" -i src/core/nginx.h
