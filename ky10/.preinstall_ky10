@@ -11,6 +11,12 @@ if ! grep -q '^alias ll=' ~/.bashrc; then echo "alias ll='/bin/ls --color -lah'"
 dnf makecache
 dnf upgrade -y
 
+dnf makecache
+dnf upgrade -y
+
+dnf makecache
+dnf upgrade -y
+
 yum install -y brotli-devel
 yum install -y zstd-devel
 
