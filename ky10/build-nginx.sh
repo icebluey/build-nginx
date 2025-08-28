@@ -647,7 +647,7 @@ rm -f /etc/nginx/fastcgi.conf
 rm -f /etc/nginx/fastcgi_params
 rm -f /etc/nginx/koi-win
 rm -f /etc/nginx/uwsgi_params
-rm -f /etc/nginx/nginx.conf.default
+rm -f /etc/nginx/nginx.conf.default*
 rm -f /etc/nginx/mime.types.default
 rm -f /etc/nginx/uwsgi_params.default
 rm -f /etc/nginx/win-utf
