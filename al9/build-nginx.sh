@@ -583,8 +583,8 @@ _build_nginx() {
     _strip_files
     install -m 0755 -d usr/lib64/nginx
     cp -afr /"${_private_dir}" usr/lib64/nginx/
-    #patchelf --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
-    patchelf --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
+    #patchelf --force-rpath --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
+    patchelf --force-rpath --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     echo
     find /tmp/nginx -type f -name .packlist -exec rm -vf '{}' \;
     find /tmp/nginx -type f -name perllocal.pod -exec rm -vf '{}' \;

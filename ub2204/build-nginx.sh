@@ -599,7 +599,7 @@ _build_nginx() {
     _strip_files
     install -m 0755 -d usr/lib/x86_64-linux-gnu/nginx
     cp -afr /"${_private_dir}" usr/lib/x86_64-linux-gnu/nginx/
-    patchelf --add-rpath '$ORIGIN/../lib/x86_64-linux-gnu/nginx/private' usr/sbin/nginx
+    patchelf --force-rpath --add-rpath '$ORIGIN/../lib/x86_64-linux-gnu/nginx/private' usr/sbin/nginx
     echo
     find /tmp/nginx -type f -name .packlist -exec rm -vf '{}' \;
     find /tmp/nginx -type f -name perllocal.pod -exec rm -vf '{}' \;

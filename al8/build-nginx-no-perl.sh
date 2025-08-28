@@ -590,8 +590,8 @@ _build_nginx() {
     cp -afr /"${_private_dir}" usr/lib64/nginx/
     if /bin/ls "/usr/lib64/libstdc++.so"* >/dev/null 2>&1; then /bin/cp -afv "/usr/lib64/libstdc++.so"* "${_private_dir}"/; fi
 
-    #patchelf --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
-    patchelf --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
+    #patchelf --force-rpath --add-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
+    patchelf --force-rpath --set-rpath '$ORIGIN/../lib64/nginx/private' usr/sbin/nginx
     echo
     find /tmp/nginx -type f -name .packlist -exec rm -vf '{}' \;
     find /tmp/nginx -type f -name perllocal.pod -exec rm -vf '{}' \;
