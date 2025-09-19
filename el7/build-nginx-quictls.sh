@@ -166,7 +166,7 @@ _build_xz() {
     sleep 1
     rm -f xz-*.tar*
     cd xz-*
-    LDFLAGS='' ; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    LDFLAGS='' ; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
@@ -239,7 +239,7 @@ _build_libxml2() {
     rm -f libxml2-*.tar*
     cd libxml2-*
     find doc -type f -executable -print -exec chmod 0644 {} ';'
-    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
@@ -314,7 +314,7 @@ _build_libxslt() {
     sleep 1
     rm -f libxslt-*.tar*
     cd libxslt-*
-    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
@@ -390,7 +390,7 @@ _build_brotli() {
     rm -fr .git
     ./bootstrap
     rm -fr autom4te.cache
-    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
@@ -460,7 +460,7 @@ _build_libmaxminddb() {
     rm -f ltmain.sh
     bash bootstrap
     rm -fr autom4te.cache
-    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
@@ -529,7 +529,7 @@ _build_pcre2() {
     sleep 1
     rm -f pcre2-*.tar*
     cd pcre2-*
-    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
@@ -604,7 +604,7 @@ _build_openssl30quictls() {
     cd openssl30quictls
     rm -fr .git
     sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
-    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
+    LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN' ; export LDFLAGS
     HASHBANGPERL=/usr/bin/perl
     ./Configure \
     --prefix=/usr \
@@ -723,7 +723,7 @@ _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{pri
 bash /opt/gcc/set-static-libstdcxx
 
 #/bin/cp -f auto/configure configure
-LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,-rpath,/usr/lib64/nginx/private' ; export LDFLAGS
+LDFLAGS='' ; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,/usr/lib64/nginx/private' ; export LDFLAGS
 ./configure \
 --build=x86_64-linux-gnu \
 --prefix=/usr/share/nginx \
