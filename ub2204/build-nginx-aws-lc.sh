@@ -66,8 +66,8 @@ _install_go() {
     # Latest version of go
     #_go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
 
-    # go1.24.X
-    _go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | grep '^1\.24\.' | tail -n 1)"
+    # go1.25.X
+    _go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | grep '^1\.25\.' | tail -n 1)"
 
     wget -q -c -t 0 -T 9 "https://dl.google.com/go/go${_go_version}.linux-amd64.tar.gz"
     rm -fr /usr/local/go
@@ -268,165 +268,6 @@ _build_brotli() {
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/brotli
-    /sbin/ldconfig
-}
-
-_build_zstd() {
-    /sbin/ldconfig
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    git clone --recursive "https://github.com/facebook/zstd.git"
-    cd zstd
-    rm -fr .git
-    sed '/^PREFIX/s|= .*|= /usr|g' -i Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i Makefile
-    sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i Makefile
-    sed '/^PREFIX/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i lib/Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i lib/Makefile
-    sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i lib/Makefile
-    sed '/^PREFIX/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
-    sed '/^prefix/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
-    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$OOORIGIN'; export LDFLAGS
-    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C lib lib-mt
-    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"; export LDFLAGS
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C programs
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C contrib/pzstd
-    rm -fr /tmp/zstd
-    make install DESTDIR=/tmp/zstd
-    install -v -c -m 0755 contrib/pzstd/pzstd /tmp/zstd/usr/bin/
-    cd /tmp/zstd
-    ln -svf zstd.1 usr/share/man/man1/pzstd.1
-    _strip_files
-    find ./
-    find usr/lib/x86_64-linux-gnu/ -type f -iname '*.so*' | xargs -I '{}' patchelf --force-rpath --set-rpath '$ORIGIN' '{}'
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/zstd
-    /sbin/ldconfig
-}
-
-_build_openssl33() {
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    #_openssl33_ver="$(wget -qO- 'https://www.openssl.org/source/' | grep 'openssl-3\.3\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.3\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
-    #wget -c -t 9 -T 9 "https://www.openssl.org/source/openssl-${_openssl33_ver}.tar.gz"
-    _openssl33_ver="$(wget -qO- 'https://openssl-library.org/source/index.html' | grep 'openssl-3\.3\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.3\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
-    wget -c -t 9 -T 9 https://github.com/openssl/openssl/releases/download/openssl-${_openssl33_ver}/openssl-${_openssl33_ver}.tar.gz
-    tar -xof openssl-*.tar*
-    sleep 1
-    rm -f openssl-*.tar*
-    cd openssl-*
-    # Only for debian/ubuntu
-    sed '/define X509_CERT_FILE .*OPENSSLDIR "/s|"/cert.pem"|"/certs/ca-certificates.crt"|g' -i include/internal/cryptlib.h
-    sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
-    LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
-    HASHBANGPERL=/usr/bin/perl
-    ./Configure \
-    --prefix=/usr \
-    --libdir=/usr/lib/x86_64-linux-gnu \
-    --openssldir=/etc/ssl \
-    enable-zlib enable-zstd enable-brotli \
-    enable-argon2 enable-tls1_3 threads \
-    enable-camellia enable-seed \
-    enable-rfc3779 enable-sctp enable-cms \
-    enable-ec enable-ecdh enable-ecdsa \
-    enable-ec_nistp_64_gcc_128 \
-    enable-poly1305 enable-ktls enable-quic \
-    enable-md2 enable-rc5 \
-    no-mdc2 no-ec2m \
-    no-sm2 no-sm2-precomp no-sm3 no-sm4 \
-    shared linux-x86_64 '-DDEVRANDOM="\"/dev/urandom\""'
-    perl configdata.pm --dump
-    make -j$(nproc --all) all
-    rm -fr /tmp/openssl33
-    make DESTDIR=/tmp/openssl33 install_sw
-    cd /tmp/openssl33
-    # Only for debian/ubuntu
-    mkdir -p usr/include/x86_64-linux-gnu/openssl
-    chmod 0755 usr/include/x86_64-linux-gnu/openssl
-    install -c -m 0644 usr/include/openssl/opensslconf.h usr/include/x86_64-linux-gnu/openssl/
-    sed 's|http://|https://|g' -i usr/lib/x86_64-linux-gnu/pkgconfig/*.pc
-    _strip_files
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    rm -fr /usr/include/openssl
-    rm -fr /usr/include/x86_64-linux-gnu/openssl
-    rm -fr /usr/local/openssl-1.1.1
-    rm -f /etc/ld.so.conf.d/openssl-1.1.1.conf
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/openssl33
-    /sbin/ldconfig
-}
-
-_build_openssl35() {
-    set -e
-    _tmp_dir="$(mktemp -d)"
-    cd "${_tmp_dir}"
-    _openssl35_ver="$(wget -qO- 'https://openssl-library.org/source/index.html' | grep 'openssl-3\.5\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.5\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
-    wget -c -t 9 -T 9 https://github.com/openssl/openssl/releases/download/openssl-${_openssl35_ver}/openssl-${_openssl35_ver}.tar.gz
-    tar -xof openssl-*.tar*
-    sleep 1
-    rm -f openssl-*.tar*
-    cd openssl-*
-    # Only for debian/ubuntu
-    sed '/define X509_CERT_FILE .*OPENSSLDIR "/s|"/cert.pem"|"/certs/ca-certificates.crt"|g' -i include/internal/cryptlib.h
-    sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
-    LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
-    HASHBANGPERL=/usr/bin/perl
-    ./Configure \
-    --prefix=/usr \
-    --libdir=/usr/lib/x86_64-linux-gnu \
-    --openssldir=/etc/ssl \
-    enable-zlib enable-zstd enable-brotli \
-    enable-argon2 enable-tls1_3 threads \
-    enable-camellia enable-seed \
-    enable-rfc3779 enable-sctp enable-cms \
-    enable-ec enable-ecdh enable-ecdsa \
-    enable-ec_nistp_64_gcc_128 \
-    enable-poly1305 enable-ktls enable-quic \
-    enable-md2 enable-rc5 \
-    no-mdc2 no-ec2m \
-    no-sm2 no-sm2-precomp no-sm3 no-sm4 \
-    shared linux-x86_64 '-DDEVRANDOM="\"/dev/urandom\""'
-    perl configdata.pm --dump
-    make -j$(nproc --all) all
-    rm -fr /tmp/openssl35
-    make DESTDIR=/tmp/openssl35 install_sw
-    cd /tmp/openssl35
-    # Only for debian/ubuntu
-    mkdir -p usr/include/x86_64-linux-gnu/openssl
-    chmod 0755 usr/include/x86_64-linux-gnu/openssl
-    install -c -m 0644 usr/include/openssl/opensslconf.h usr/include/x86_64-linux-gnu/openssl/
-    sed 's|http://|https://|g' -i usr/lib/x86_64-linux-gnu/pkgconfig/*.pc
-    _strip_files
-    install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    rm -fr /usr/include/openssl
-    rm -fr /usr/include/x86_64-linux-gnu/openssl
-    rm -fr /usr/local/openssl-1.1.1
-    rm -f /etc/ld.so.conf.d/openssl-1.1.1.conf
-    sleep 2
-    /bin/cp -afr * /
-    sleep 2
-    cd /tmp
-    rm -fr "${_tmp_dir}"
-    rm -fr /tmp/openssl35
     /sbin/ldconfig
 }
 
@@ -851,10 +692,6 @@ _build_libxml2
 _build_libxslt
 _build_libmaxminddb
 _build_brotli
-
-#_build_zstd
-#_build_openssl33
-#_build_openssl35
 
 _install_go
 _build_aws-lc
