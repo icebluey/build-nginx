@@ -328,6 +328,7 @@ _build_openssl35() {
     enable-ec enable-ecdh enable-ecdsa \
     enable-ec_nistp_64_gcc_128 \
     enable-poly1305 enable-ktls enable-quic \
+    enable-ml-kem enable-ml-dsa enable-slh-dsa \
     enable-md2 enable-rc5 \
     no-mdc2 no-ec2m \
     no-sm2 no-sm2-precomp no-sm3 no-sm4 \
