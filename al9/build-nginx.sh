@@ -64,7 +64,7 @@ _strip_files() {
 _build_zlib() {
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _zlib_ver="$(wget -qO- 'https://www.zlib.net/' | grep 'zlib-[1-9].*\.tar\.' | sed -e 's|"|\n|g' | grep '^zlib-[1-9]' | sed -e 's|\.tar.*||g' -e 's|zlib-||g' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://www.zlib.net/zlib-${_zlib_ver}.tar.gz"
@@ -94,7 +94,7 @@ _build_zlib() {
 _build_libxml2() {
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     #_libxml2_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxml2/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxml2-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxml2-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
     _libxml2_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxml2/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxml2-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxml2-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | grep '2\.13\.' | sort -V | uniq | tail -n 1)"
@@ -134,7 +134,7 @@ _build_libxml2() {
 _build_libxslt() {
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _libxslt_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxslt/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxslt-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxslt-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 https://download.gnome.org/sources/libxslt/${_libxslt_ver%.*}/libxslt-${_libxslt_ver}.tar.xz
@@ -173,7 +173,7 @@ _build_libxslt() {
 _build_libmaxminddb() {
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     git clone --recursive 'https://github.com/maxmind/libmaxminddb.git' libmaxminddb
     cd libmaxminddb
@@ -205,7 +205,7 @@ _build_libmaxminddb() {
 _build_brotli() {
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     git clone --recursive 'https://github.com/google/brotli.git' brotli
     cd brotli
@@ -256,7 +256,7 @@ _build_brotli() {
 _build_zstd() {
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     git clone --recursive "https://github.com/facebook/zstd.git"
     cd zstd
@@ -300,7 +300,7 @@ _build_zstd() {
 
 _build_openssl35() {
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _openssl35_ver="$(wget -qO- 'https://openssl-library.org/source/index.html' | grep 'openssl-3\.5\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.5\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 https://github.com/openssl/openssl/releases/download/openssl-${_openssl35_ver}/openssl-${_openssl35_ver}.tar.gz
@@ -350,7 +350,7 @@ _build_openssl35() {
 _build_pcre2() {
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _pcre2_ver="$(wget -qO- 'https://github.com/PCRE2Project/pcre2/releases' | grep -i 'pcre2-[1-9]' | sed 's|"|\n|g' | grep -i '^/PCRE2Project/pcre2/tree' | sed 's|.*/pcre2-||g' | sed 's|\.tar.*||g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${_pcre2_ver}/pcre2-${_pcre2_ver}.tar.bz2"
@@ -388,7 +388,7 @@ _build_nginx() {
     getent passwd nginx >/dev/null || useradd -r -d /var/lib/nginx -g nginx -s /usr/sbin/nologin -c "Nginx web server" nginx
     /sbin/ldconfig
     set -e
-    _tmp_dir="$(mktemp -d)"
+    local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     # 1.26
     #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.26' | tail -n 1)"
