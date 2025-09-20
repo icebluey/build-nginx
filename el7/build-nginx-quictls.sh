@@ -118,11 +118,11 @@ _build_zlib() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -146,9 +146,9 @@ _build_zlib() {
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
     /bin/rm -f /usr/lib64/libz.so*
     /bin/rm -f /usr/lib64/libz.a
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/zlib
@@ -191,11 +191,11 @@ _build_xz() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -218,9 +218,9 @@ _build_xz() {
     install -m 0755 -d usr/lib64/nginx/private
     cp -af usr/lib64/*.so* usr/lib64/nginx/private/
     rm -f /usr/lib64/liblzma.*
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/xz
@@ -267,11 +267,11 @@ _build_libxml2() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -294,9 +294,9 @@ _build_libxml2() {
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
     rm -f /usr/lib64/libxml2.*
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libxml2
@@ -342,11 +342,11 @@ _build_libxslt() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -370,9 +370,9 @@ _build_libxslt() {
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
     rm -f /usr/lib64/libxslt.*
     rm -f /usr/lib64/libexslt.*
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libxslt
@@ -413,11 +413,11 @@ _build_brotli() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -439,9 +439,9 @@ _build_brotli() {
     echo
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/brotli
@@ -483,11 +483,11 @@ _build_libmaxminddb() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -509,9 +509,9 @@ _build_libmaxminddb() {
     echo
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libmaxminddb
@@ -558,11 +558,11 @@ _build_pcre2() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -584,9 +584,9 @@ _build_pcre2() {
     echo
     install -m 0755 -d usr/lib64/nginx/private
     /bin/cp -af usr/lib64/*.so* usr/lib64/nginx/private/
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/pcre2
@@ -638,11 +638,11 @@ _build_openssl30quictls() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -669,9 +669,9 @@ _build_openssl30quictls() {
     rm -fr /usr/include/openssl
     rm -fr /usr/local/openssl-1.1.1
     rm -f /etc/ld.so.conf.d/openssl-1.1.1.conf
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/openssl30quictls
@@ -885,10 +885,10 @@ rm -fr var/run
 sleep 1
 chown -R root:root ./
 echo
-sleep 2
+sleep 1
 tar -Jcvf /tmp/gws-"${_vmajor}.${_vminor}.${_vpatch}"-1.el7.x86_64.tar.xz *
 echo
-sleep 2
+sleep 1
 cd /tmp
 openssl dgst -r -sha256 gws-"${_vmajor}.${_vminor}.${_vpatch}"-1.el7.x86_64.tar.xz | sed 's|\*| |g' > gws-"${_vmajor}.${_vminor}.${_vpatch}"-1.el7.x86_64.tar.xz.sha256
 rm -fr "${_tmp_dir}"

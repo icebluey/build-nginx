@@ -33,11 +33,11 @@ _strip_files() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 2
+        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 2
+        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -80,9 +80,9 @@ _build_zlib() {
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     /bin/rm -f /usr/lib/x86_64-linux-gnu/libz.so*
     /bin/rm -f /usr/lib/x86_64-linux-gnu/libz.a
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/zlib
@@ -120,9 +120,9 @@ _build_libxml2() {
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     #rm -f /usr/lib/x86_64-linux-gnu/libxml2.*
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libxml2
@@ -159,9 +159,9 @@ _build_libxslt() {
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     rm -f /usr/lib/x86_64-linux-gnu/libxslt.*
     rm -f /usr/lib/x86_64-linux-gnu/libexslt.*
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libxslt
@@ -191,9 +191,9 @@ _build_libmaxminddb() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libmaxminddb
@@ -242,9 +242,9 @@ _build_brotli() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/brotli
@@ -287,9 +287,9 @@ _build_zstd() {
     find usr/lib/x86_64-linux-gnu/ -type f -iname '*.so*' | xargs -I '{}' patchelf --force-rpath --set-rpath '$ORIGIN' '{}'
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/zstd
@@ -344,9 +344,9 @@ _build_openssl35() {
     rm -fr /usr/include/x86_64-linux-gnu/openssl
     rm -fr /usr/local/openssl-1.1.1
     rm -f /etc/ld.so.conf.d/openssl-1.1.1.conf
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/openssl35
@@ -380,9 +380,9 @@ _build_pcre2() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
-    sleep 2
+    sleep 1
     /bin/cp -afr * /
-    sleep 2
+    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/pcre2
@@ -688,10 +688,10 @@ chmod 0644 etc/sysconfig/nginx
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/h3.conf' -O etc/nginx/conf.d/h3.conf.example
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/opt.conf' -O etc/nginx/conf.d/opt.conf.example
     chmod 0644 etc/nginx/conf.d/*conf*
-    sleep 2
+    sleep 1
     tar -Jcvf /tmp/nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz *
     echo
-    sleep 2
+    sleep 1
     cd /tmp
     openssl dgst -r -sha256 nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-1_ub2204_amd64.tar.xz.sha256
     rm -fr "${_tmp_dir}"
