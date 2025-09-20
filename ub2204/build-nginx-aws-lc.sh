@@ -346,7 +346,7 @@ _build_pcre2() {
     ./configure \
     --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --enable-shared --enable-static \
-    --enable-pcre2-8 --enable-pcre2-16 --enable-pcre2-32 \
+    --enable-pcre2-8 --disable-pcre2-16 --disable-pcre2-32 \
     --enable-jit --enable-unicode \
     --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --includedir=/usr/include --sysconfdir=/etc
     sed 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' -i libtool
@@ -358,6 +358,9 @@ _build_pcre2() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    rm -f "${_private_dir}"/libpcre2-16.*
+    rm -f "${_private_dir}"/libpcre2-32.*
+    rm -f "${_private_dir}"/libpcre2-posix.*
     sleep 1
     /bin/cp -afr * /
     sleep 1
