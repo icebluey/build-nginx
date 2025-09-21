@@ -16,7 +16,7 @@ export CXX
 
 _private_dir='usr/lib/x86_64-linux-gnu/nginx/private'
 
-set -e
+set -euo pipefail
 
 _strip_files() {
     if [[ "$(pwd)" = '/' ]]; then
@@ -57,7 +57,7 @@ _strip_files() {
 }
 
 _install_go() {
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     # Latest version of go
@@ -76,7 +76,7 @@ _install_go() {
 
 _build_zlib() {
     /sbin/ldconfig
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _zlib_ver="$(wget -qO- 'https://www.zlib.net/' | grep 'zlib-[1-9].*\.tar\.' | sed -e 's|"|\n|g' | grep '^zlib-[1-9]' | sed -e 's|\.tar.*||g' -e 's|zlib-||g' | sort -V | uniq | tail -n 1)"
@@ -103,7 +103,7 @@ _build_zlib() {
 
 _build_libxml2() {
     /sbin/ldconfig
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     #_libxml2_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxml2/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxml2-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxml2-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
@@ -140,7 +140,7 @@ _build_libxml2() {
 
 _build_libxslt() {
     /sbin/ldconfig
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _libxslt_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxslt/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxslt-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxslt-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
@@ -176,7 +176,7 @@ _build_libxslt() {
 
 _build_libmaxminddb() {
     /sbin/ldconfig
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     git clone --recursive 'https://github.com/maxmind/libmaxminddb.git' libmaxminddb
@@ -206,7 +206,7 @@ _build_libmaxminddb() {
 
 _build_brotli() {
     /sbin/ldconfig
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     git clone --recursive 'https://github.com/google/brotli.git' brotli
@@ -255,7 +255,7 @@ _build_brotli() {
 
 _build_aws-lc() {
     _install_go
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _aws_lc_tag="$(wget -qO- 'https://github.com/aws/aws-lc/tags' | grep -i 'href="/.*/releases/tag/' | sed 's|"|\n|g' | grep -i '/releases/tag/' | sed 's|.*/tag/||g' | sort -V | uniq | tail -n 1)"
@@ -313,7 +313,7 @@ _build_aws-lc() {
 
 _build_pcre2() {
     /sbin/ldconfig
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     _pcre2_ver="$(wget -qO- 'https://github.com/PCRE2Project/pcre2/releases' | grep -i 'pcre2-[1-9]' | sed 's|"|\n|g' | grep -i '^/PCRE2Project/pcre2/tree' | sed 's|.*/pcre2-||g' | sed 's|\.tar.*||g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
@@ -351,7 +351,7 @@ _build_nginx() {
     getent group nginx >/dev/null || groupadd -r nginx
     getent passwd nginx >/dev/null || useradd -r -d /var/lib/nginx -g nginx -s /usr/sbin/nologin -c "Nginx web server" nginx
     /sbin/ldconfig
-    set -e
+    set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     # 1.26
@@ -429,8 +429,8 @@ _build_nginx() {
     sed 's@"nginx/"@"gws-v"@g' -i src/core/nginx.h
     sed 's@Server: nginx@Server: gws@g' -i src/http/ngx_http_header_filter_module.c
     sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
-    _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-    _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    _http_module_args="$((./configure --help 2>&1 || true) | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
+    _stream_module_args="$((./configure --help 2>&1 || true) | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     LDFLAGS=''; export LDFLAGS
     #./auto/configure \
     ./configure \
