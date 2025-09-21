@@ -425,6 +425,7 @@ _build_nginx() {
     mkdir modules
     cd modules
     _dl_modules_orig
+    echo '_dl_modules_orig done'
     #_dl_modules_me
     cd ..
 
