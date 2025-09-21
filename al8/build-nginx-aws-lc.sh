@@ -18,7 +18,7 @@ _private_dir='usr/lib64/nginx/private'
 
 . /opt/rh/gcc-toolset-14/enable
 
-set -euo pipefail
+set -e
 
 _strip_files() {
     if [[ "$(pwd)" = '/' ]]; then

@@ -16,7 +16,7 @@ export CXX
 
 _private_dir='usr/lib64/nginx/private'
 
-set -euo pipefail
+set -e
 
 _strip_files() {
     if [[ "$(pwd)" = '/' ]]; then
