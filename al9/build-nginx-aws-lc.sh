@@ -256,6 +256,7 @@ _build_brotli() {
 }
 
 _build_aws-lc() {
+    _install_go
     set -e
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
@@ -666,7 +667,6 @@ _build_libxslt
 _build_libmaxminddb
 _build_brotli
 
-_install_go
 _build_aws-lc
 
 _build_pcre2
