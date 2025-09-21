@@ -252,25 +252,23 @@ _build_zstd() {
     sed '/^prefix/s|= .*|= /usr|g' -i lib/Makefile
     sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i lib/Makefile
     sed '/^PREFIX/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^LIBDIR/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
     sed '/^prefix/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^libdir/s|= .*|= /usr/lib/x86_64-linux-gnu|g' -i programs/Makefile
-    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$OOORIGIN'; export LDFLAGS
-    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu
+    #LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$OOORIGIN'; export LDFLAGS
+    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"; export LDFLAGS
     make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C lib lib-mt
     LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"; export LDFLAGS
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C programs
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C contrib/pzstd
+    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C programs
+    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib/x86_64-linux-gnu -C contrib/pzstd
     rm -fr /tmp/zstd
-    make install DESTDIR=/tmp/zstd
-    install -v -c -m 0755 contrib/pzstd/pzstd /tmp/zstd/usr/bin/
+    make install DESTDIR=/tmp/zstd -C lib
+    #make install DESTDIR=/tmp/zstd
+    #install -v -c -m 0755 contrib/pzstd/pzstd /tmp/zstd/usr/bin/
     cd /tmp/zstd
-    ln -svf zstd.1 usr/share/man/man1/pzstd.1
+    #ln -svf zstd.1 usr/share/man/man1/pzstd.1
     _strip_files
-    find ./
-    find usr/lib/x86_64-linux-gnu/ -type f -iname '*.so*' | xargs -I '{}' patchelf --force-rpath --set-rpath '$ORIGIN' '{}'
+    #find usr/lib/x86_64-linux-gnu/ -type f -iname '*.so*' | xargs -I '{}' patchelf --force-rpath --set-rpath '$ORIGIN' '{}'
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
+    /bin/cp -af usr/lib/x86_64-linux-gnu/*.so* "${_private_dir}"/
     /bin/cp -afr * /
     cd /tmp
     rm -fr "${_tmp_dir}"

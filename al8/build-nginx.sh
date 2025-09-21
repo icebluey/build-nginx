@@ -254,24 +254,25 @@ _build_zstd() {
     sed '/^prefix/s|= .*|= /usr|g' -i lib/Makefile
     sed '/^libdir/s|= .*|= /usr/lib64|g' -i lib/Makefile
     sed '/^PREFIX/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^LIBDIR/s|= .*|= /usr/lib64|g' -i programs/Makefile
     sed '/^prefix/s|= .*|= /usr|g' -i programs/Makefile
-    #sed '/^libdir/s|= .*|= /usr/lib64|g' -i programs/Makefile
-    LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$OOORIGIN'; export LDFLAGS
-    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C lib lib-mt
+    #LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$OOORIGIN'; export LDFLAGS
     LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"; export LDFLAGS
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C programs
-    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C contrib/pzstd
+    make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C lib lib-mt
+    # build bin
+    #LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"; export LDFLAGS
+    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C programs
+    #make -j$(nproc --all) V=1 prefix=/usr libdir=/usr/lib64 -C contrib/pzstd
     rm -fr /tmp/zstd
-    make install DESTDIR=/tmp/zstd
-    install -v -c -m 0755 contrib/pzstd/pzstd /tmp/zstd/usr/bin/
+    make install DESTDIR=/tmp/zstd -C lib
+    #make install DESTDIR=/tmp/zstd
+    #install -v -c -m 0755 contrib/pzstd/pzstd /tmp/zstd/usr/bin/
     cd /tmp/zstd
-    ln -svf zstd.1 usr/share/man/man1/pzstd.1
+    #ln -svf zstd.1 usr/share/man/man1/pzstd.1
     _strip_files
-    find usr/lib64/ -type f -iname '*.so*' | xargs -I '{}' patchelf --force-rpath --set-rpath '$ORIGIN' '{}'
+    #find usr/lib64/ -type f -iname '*.so*' | xargs -I '{}' patchelf --force-rpath --set-rpath '$ORIGIN' '{}'
     install -m 0755 -d "${_private_dir}"
-    cp -af usr/lib64/*.so* "${_private_dir}"/
+    /bin/cp -af usr/lib64/*.so* "${_private_dir}"/
+    rm -f /usr/lib64/libzstd.*
     /bin/cp -afr * /
     cd /tmp
     rm -fr "${_tmp_dir}"
