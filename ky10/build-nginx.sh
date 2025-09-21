@@ -368,7 +368,7 @@ _build_nginx() {
     getent group nginx >/dev/null || groupadd -r nginx
     getent passwd nginx >/dev/null || useradd -r -d /var/lib/nginx -g nginx -s /usr/sbin/nologin -c "Nginx web server" nginx
     /sbin/ldconfig
-    set -euo pipefail
+    set -e
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
     # 1.26
