@@ -33,11 +33,8 @@ _strip_files() {
     find usr/ -type f -iname '*.la' -delete
     if [[ -d usr/share/man ]]; then
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
-        sleep 1
         find usr/share/man/ -type f -iname '*.[1-9]' -exec gzip -f -9 '{}' \;
-        sleep 1
         find -L usr/share/man/ -type l | while read file; do ln -svf "$(readlink -s "${file}").gz" "${file}.gz" ; done
-        sleep 1
         find -L usr/share/man/ -type l -exec rm -f '{}' \;
     fi
     if [[ -d usr/lib/x86_64-linux-gnu ]]; then
@@ -67,7 +64,6 @@ _build_zlib() {
     _zlib_ver="$(wget -qO- 'https://www.zlib.net/' | grep 'zlib-[1-9].*\.tar\.' | sed -e 's|"|\n|g' | grep '^zlib-[1-9]' | sed -e 's|\.tar.*||g' -e 's|zlib-||g' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://www.zlib.net/zlib-${_zlib_ver}.tar.gz"
     tar -xof zlib-*.tar.*
-    sleep 1
     rm -f zlib-*.tar*
     cd zlib-*
     ./configure --prefix=/usr --libdir=/usr/lib64 --includedir=/usr/include --64
@@ -80,9 +76,7 @@ _build_zlib() {
     cp -af usr/lib64/*.so* "${_private_dir}"/
     /bin/rm -f /usr/lib64/libz.so*
     /bin/rm -f /usr/lib64/libz.a
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/zlib
@@ -98,7 +92,6 @@ _build_libxml2() {
     _libxml2_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxml2/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxml2-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxml2-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | grep '2\.13\.' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://download.gnome.org/sources/libxml2/${_libxml2_ver%.*}/libxml2-${_libxml2_ver}.tar.xz"
     tar -xof libxml2-*.tar.*
-    sleep 1
     rm -f libxml2-*.tar*
     cd libxml2-*
     find doc -type f -executable -print -exec chmod 0644 {} ';'
@@ -120,9 +113,7 @@ _build_libxml2() {
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib64/*.so* "${_private_dir}"/
     #rm -f /usr/lib64/libxml2.*
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libxml2
@@ -137,7 +128,6 @@ _build_libxslt() {
     _libxslt_ver="$(wget -qO- 'https://gitlab.gnome.org/GNOME/libxslt/-/tags' | grep '\.tar\.' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^libxslt-.*\.tar\..*' | grep -ivE 'alpha|beta|rc[1-9]' | sed -e 's|.*libxslt-v||g' -e 's|\.tar.*||g' | grep '^[1-9]' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 https://download.gnome.org/sources/libxslt/${_libxslt_ver%.*}/libxslt-${_libxslt_ver}.tar.xz
     tar -xof libxslt-${_libxslt_ver}.tar.*
-    sleep 1
     rm -f libxslt-*.tar*
     cd libxslt-*
     LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
@@ -159,9 +149,7 @@ _build_libxslt() {
     cp -af usr/lib64/*.so* "${_private_dir}"/
     rm -f /usr/lib64/libxslt.*
     rm -f /usr/lib64/libexslt.*
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libxslt
@@ -191,9 +179,7 @@ _build_libmaxminddb() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib64/*.so* "${_private_dir}"/
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/libmaxminddb
@@ -242,9 +228,7 @@ _build_brotli() {
     _strip_files
     install -m 0755 -d "${_private_dir}"
     cp -af usr/lib64/*.so* "${_private_dir}"/
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/brotli
@@ -291,9 +275,7 @@ _build_zstd() {
     rm -f /usr/include/zstd.h
     rm -f /usr/include/zstd_errors.h
     rm -f /usr/lib64/libzstd.so
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/zstd
@@ -307,7 +289,6 @@ _build_openssl35() {
     _openssl35_ver="$(wget -qO- 'https://openssl-library.org/source/index.html' | grep 'openssl-3\.5\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-3\.5\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 https://github.com/openssl/openssl/releases/download/openssl-${_openssl35_ver}/openssl-${_openssl35_ver}.tar.gz
     tar -xof openssl-*.tar*
-    sleep 1
     rm -f openssl-*.tar*
     cd openssl-*
     sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
@@ -340,9 +321,7 @@ _build_openssl35() {
     cp -af usr/lib64/*.so* "${_private_dir}"/
     rm -fr /usr/include/openssl
     rm -fr /usr/include/x86_64-linux-gnu/openssl
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/openssl35
@@ -357,7 +336,6 @@ _build_pcre2() {
     _pcre2_ver="$(wget -qO- 'https://github.com/PCRE2Project/pcre2/releases' | grep -i 'pcre2-[1-9]' | sed 's|"|\n|g' | grep -i '^/PCRE2Project/pcre2/tree' | sed 's|.*/pcre2-||g' | sed 's|\.tar.*||g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
     wget -c -t 9 -T 9 "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${_pcre2_ver}/pcre2-${_pcre2_ver}.tar.bz2"
     tar -xof pcre2-${_pcre2_ver}.tar.*
-    sleep 1
     rm -f pcre2-*.tar*
     cd pcre2-*
     LDFLAGS=''; LDFLAGS="${_ORIG_LDFLAGS}"' -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
@@ -379,9 +357,7 @@ _build_pcre2() {
     rm -f "${_private_dir}"/libpcre2-16.*
     rm -f "${_private_dir}"/libpcre2-32.*
     rm -f "${_private_dir}"/libpcre2-posix.*
-    sleep 1
     /bin/cp -afr * /
-    sleep 1
     cd /tmp
     rm -fr "${_tmp_dir}"
     rm -fr /tmp/pcre2
@@ -405,7 +381,6 @@ _build_nginx() {
 
     wget -c -t 9 -T 9 "https://nginx.org/download/nginx-${_nginx_ver}.tar.gz"
     tar -xof nginx*.tar*
-    sleep 1
     rm -f release*.tar*
     rm -f nginx*.tar*
 
@@ -428,7 +403,6 @@ _build_nginx() {
         #wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
         #tar -xof psol*.tar* -C ngx_pagespeed/
-        #sleep 1
         #rm -f psol*.tar.gz
     }
 
@@ -449,7 +423,6 @@ _build_nginx() {
         #wget -c "https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/psol/1.13.35.2-x64.tar.gz" -O psol.tar.gz
         #wget -c "https://github.com/icebluey/build-nginx/raw/refs/heads/master/psol/psol-jammy.tar.gz"
         #tar -xof psol*.tar* -C ngx_pagespeed/
-        #sleep 1
         #rm -f psol*.tar.gz
     }
 
@@ -534,7 +507,6 @@ _build_nginx() {
     install -m 0755 -d etc/nginx/conf.d
     install -m 0755 -d etc/nginx/geoip
     [ -d usr/local ] && cp -fr usr/local/* usr/
-    sleep 1
     rm -fr usr/local
     sed 's/nginx\/$nginx_version/gws/g' -i etc/nginx/fastcgi.conf
     sed 's/nginx\/$nginx_version/gws/g' -i etc/nginx/fastcgi_params
@@ -697,10 +669,8 @@ chmod 0644 etc/sysconfig/nginx
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/h3.conf' -O etc/nginx/conf.d/h3.conf.example
     wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/conf/opt.conf' -O etc/nginx/conf.d/opt.conf.example
     chmod 0644 etc/nginx/conf.d/*conf*
-    sleep 1
     tar -Jcvf /tmp/nginx-"${_nginx_ver}"-no-perl-1_ky10_amd64.tar.xz *
     echo
-    sleep 1
     cd /tmp
     openssl dgst -r -sha256 nginx-"${_nginx_ver}"-no-perl-1_ky10_amd64.tar.xz | sed 's|\*| |g' > nginx-"${_nginx_ver}"-no-perl-1_ky10_amd64.tar.xz.sha256
     rm -fr "${_tmp_dir}"
