@@ -441,7 +441,9 @@ _build_nginx() {
     sed 's@<hr><center>nginx</center>@<hr><center>gws</center>@g' -i src/http/ngx_http_special_response.c
     _http_module_args="$(./configure --help | grep -i '\--with-http' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
     _stream_module_args="$(./configure --help | grep -i '\--with-stream' | awk '{print $1}' | sed 's/^[ ]*//g' | sed 's/[ ]*$//g' | grep -v '=' | sort -u | uniq | grep -iv 'geoip' | paste -sd' ')"
-    LDFLAGS=''; export LDFLAGS    
+    echo 'set LDFLAGS'
+    LDFLAGS=''; export LDFLAGS
+    echo 'set LDFLAGS done'
     #./auto/configure \
     ./configure \
     --build=x86_64-linux-gnu \
