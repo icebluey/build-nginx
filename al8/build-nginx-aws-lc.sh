@@ -422,7 +422,7 @@ _build_nginx() {
     #rm -f /tmp/aws-lc-nginx.patch
     _vmajor=2
     _vminor=9
-    _vpatch=12
+    _vpatch=13
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
     sed "s@#define nginx_version.*@#define nginx_version      ${_longver}@g" -i src/core/nginx.h
