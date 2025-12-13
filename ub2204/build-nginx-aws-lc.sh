@@ -258,7 +258,7 @@ _build_aws-lc() {
     set -euo pipefail
     local _tmp_dir="$(mktemp -d)"
     cd "${_tmp_dir}"
-    _aws_lc_tag="$(wget -qO- 'https://github.com/aws/aws-lc/tags' | grep -i 'href="/.*/releases/tag/' | sed 's|"|\n|g' | grep -i '/releases/tag/' | sed 's|.*/tag/||g' | sort -V | uniq | tail -n 1)"
+    _aws_lc_tag="$(wget -qO- 'https://github.com/aws/aws-lc/tags' | grep -i 'href="/.*/releases/tag/' | sed 's|"|\n|g' | grep -i '/releases/tag/' | sed 's|.*/tag/||g' | grep -ivE 'alpha|beta|rc|dev|fips' | grep -i '^v[1-9]' | sort -V | uniq | tail -n1)"
     wget -c -t 9 -T 9 "https://github.com/aws/aws-lc/archive/refs/tags/${_aws_lc_tag}.tar.gz"
     tar -xof *.tar*
     rm -f *.tar*
@@ -421,7 +421,7 @@ _build_nginx() {
     #rm -f /tmp/aws-lc-nginx.patch
     _vmajor=2
     _vminor=9
-    _vpatch=13
+    _vpatch=14
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
     sed "s@#define nginx_version.*@#define nginx_version      ${_longver}@g" -i src/core/nginx.h
