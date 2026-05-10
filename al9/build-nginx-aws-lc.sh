@@ -65,8 +65,8 @@ _install_go() {
     # Latest version of go
     #_go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | tail -n 1)"
 
-    # go1.25.X
-    _go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | grep '^1\.25\.' | tail -n 1)"
+    # go1.26.X
+    _go_version="$(wget -qO- 'https://golang.org/dl/' | grep -i 'linux-amd64\.tar\.' | sed 's/"/\n/g' | grep -i 'linux-amd64\.tar\.' | cut -d/ -f3 | grep -i '\.gz$' | sed 's/go//g; s/.linux-amd64.tar.gz//g' | grep -ivE 'alpha|beta|rc' | sort -V | uniq | grep '^1\.26\.' | tail -n 1)"
 
     wget -q -c -t 0 -T 9 "https://dl.google.com/go/go${_go_version}.linux-amd64.tar.gz"
     rm -fr /usr/local/go
@@ -359,9 +359,11 @@ _build_nginx() {
     #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.26' | tail -n 1)"
     # 1.28
     #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.28' | tail -n 1)"
-
     # 1.29
-    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.29' | tail -n 1)"
+    #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.29' | tail -n 1)"
+
+    # 1.30
+    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.30\.' | tail -n 1)"
 
     wget -c -t 9 -T 9 "https://nginx.org/download/nginx-${_nginx_ver}.tar.gz"
     tar -xof nginx*.tar*
@@ -420,9 +422,9 @@ _build_nginx() {
     #wget -c -t 9 -T 9 'https://raw.githubusercontent.com/icebluey/build-nginx/refs/heads/master/nginx-patches/aws-lc-nginx-1.29.1.patch' -O /tmp/aws-lc-nginx.patch
     #patch -N -p 1 -i /tmp/aws-lc-nginx.patch
     #rm -f /tmp/aws-lc-nginx.patch
-    _vmajor=2
-    _vminor=9
-    _vpatch=14
+    _vmajor=3
+    _vminor=0
+    _vpatch=10
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
     sed "s@#define nginx_version.*@#define nginx_version      ${_longver}@g" -i src/core/nginx.h
