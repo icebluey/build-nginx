@@ -479,9 +479,9 @@ _build_nginx() {
     cd ..
 
     cd nginx-*
-    _vmajor=2
-    _vminor=9
-    _vpatch=14
+    _vmajor=3
+    _vminor=1
+    _vpatch=11
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
     sed "s@#define nginx_version.*@#define nginx_version      ${_longver}@g" -i src/core/nginx.h
