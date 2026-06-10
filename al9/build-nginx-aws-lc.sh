@@ -16,7 +16,7 @@ export CXX
 
 _private_dir='usr/lib64/nginx/private'
 
-. /opt/rh/gcc-toolset-14/enable
+. /opt/rh/gcc-toolset-15/enable
 
 set -euo pipefail
 
@@ -362,8 +362,8 @@ _build_nginx() {
     # 1.29
     #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.29' | tail -n 1)"
 
-    # 1.30
-    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.30\.' | tail -n 1)"
+    # 1.31
+    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.31\.' | tail -n 1)"
 
     wget -c -t 9 -T 9 "https://nginx.org/download/nginx-${_nginx_ver}.tar.gz"
     tar -xof nginx*.tar*
@@ -423,8 +423,8 @@ _build_nginx() {
     #patch -N -p 1 -i /tmp/aws-lc-nginx.patch
     #rm -f /tmp/aws-lc-nginx.patch
     _vmajor=3
-    _vminor=0
-    _vpatch=10
+    _vminor=1
+    _vpatch=11
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
     sed "s@#define nginx_version.*@#define nginx_version      ${_longver}@g" -i src/core/nginx.h
