@@ -82,7 +82,7 @@ yum install -y dracut ; yum update -y dracut
 #yum install -y gcc-toolset-14-annobin-plugin-gcc gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ gcc-toolset-14-binutils scl-utils
 
 # gcc-toolset-15
-yum install -y gcc-toolset-15-gcc gcc-toolset-15-gcc-c++ gcc-toolset-15-binutils gcc-toolset-15-libstdc++-devel gcc-toolset-15-libatomic-devel scl-utils
+yum install -y gcc-toolset-15-gcc gcc-toolset-15-gcc-c++ gcc-toolset-15-binutils gcc-toolset-15-libstdc++-devel gcc-toolset-15-libatomic-devel scl-utils gcc-toolset-15-gcc-plugin-annobin
 
 
 /sbin/ldconfig >/dev/null 2>&1
