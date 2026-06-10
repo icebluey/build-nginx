@@ -326,6 +326,52 @@ _build_openssl35() {
     /sbin/ldconfig
 }
 
+_build_openssl40() {
+    set -euo pipefail
+    local _tmp_dir="$(mktemp -d)"
+    cd "${_tmp_dir}"
+    _openssl40_ver="$(wget -qO- 'https://openssl-library.org/source/index.html' | grep 'openssl-4\.0\.' | sed 's|"|\n|g' | sed 's|/|\n|g' | grep -i '^openssl-4\.0\..*\.tar\.gz$' | cut -d- -f2 | sed 's|\.tar.*||g' | sort -V | uniq | tail -n 1)"
+    wget -c -t 9 -T 9 https://github.com/openssl/openssl/releases/download/openssl-${_openssl40_ver}/openssl-${_openssl40_ver}.tar.gz
+    tar -xof openssl-*.tar*
+    rm -f openssl-*.tar*
+    cd openssl-*
+    sed '/install_docs:/s| install_html_docs||g' -i Configurations/unix-Makefile.tmpl
+    LDFLAGS=''; LDFLAGS='-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,--disable-new-dtags -Wl,-rpath,\$$ORIGIN'; export LDFLAGS
+    HASHBANGPERL=/usr/bin/perl
+    ./Configure \
+    --prefix=/usr \
+    --libdir=/usr/lib64 \
+    --openssldir=/etc/pki/tls \
+    enable-zlib enable-zstd enable-brotli \
+    enable-argon2 enable-tls1_3 threads \
+    enable-camellia enable-seed \
+    enable-rfc3779 enable-sctp enable-cms \
+    enable-ec enable-ecdh enable-ecdsa enable-ech \
+    enable-ec_nistp_64_gcc_128 \
+    enable-poly1305 enable-ktls enable-quic \
+    enable-ml-kem enable-ml-dsa enable-slh-dsa \
+    enable-md2 enable-rc5 \
+    no-mdc2 no-ec2m \
+    no-sm2 no-sm2-precomp no-sm3 no-sm4 \
+    shared linux-x86_64 '-DDEVRANDOM="\"/dev/urandom\""'
+    perl configdata.pm --dump
+    make -j$(nproc --all) all
+    rm -fr /tmp/openssl40
+    make DESTDIR=/tmp/openssl40 install_sw
+    cd /tmp/openssl40
+    sed 's|http://|https://|g' -i usr/lib64/pkgconfig/*.pc
+    _strip_files
+    install -m 0755 -d "${_private_dir}"
+    cp -af usr/lib64/*.so* "${_private_dir}"/
+    rm -fr /usr/include/openssl
+    rm -fr /usr/include/x86_64-linux-gnu/openssl
+    /bin/cp -afr * /
+    cd /tmp
+    rm -fr "${_tmp_dir}"
+    rm -fr /tmp/openssl40
+    /sbin/ldconfig
+}
+
 _build_pcre2() {
     /sbin/ldconfig
     set -euo pipefail
@@ -374,8 +420,8 @@ _build_nginx() {
     # 1.28
     #_nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.28' | tail -n 1)"
 
-    # 1.29
-    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.29' | tail -n 1)"
+    # 1.31
+    _nginx_ver="$(wget -qO- 'https://github.com/nginx/nginx/tags' | grep -i 'tags/release-.*.tar.gz' | sed -e 's|"|\n|g' -e 's|/|\n|g' | grep -i '^release-' | sed -e 's|release-||g' -e 's|\.tar.*||g' | sort -V | uniq | grep '1\.31' | tail -n 1)"
 
     wget -c -t 9 -T 9 "https://nginx.org/download/nginx-${_nginx_ver}.tar.gz"
     tar -xof nginx*.tar*
@@ -429,9 +475,9 @@ _build_nginx() {
     cd ..
 
     cd nginx-*
-    _vmajor=2
-    _vminor=9
-    _vpatch=14
+    _vmajor=3
+    _vminor=1
+    _vpatch=11
     _longver=$(printf "%1d%03d%03d" ${_vmajor} ${_vminor} ${_vpatch})
     _fullver="$(echo \"${_vmajor}\.${_vminor}\.${_vpatch}\")"
     sed "s@#define nginx_version.*@#define nginx_version      ${_longver}@g" -i src/core/nginx.h
@@ -675,7 +721,8 @@ _build_libxslt
 _build_libmaxminddb
 _build_brotli
 _build_zstd
-_build_openssl35
+#_build_openssl35
+_build_openssl40
 _build_pcre2
 _build_nginx
 
