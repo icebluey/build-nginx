@@ -16,7 +16,7 @@ export CXX
 
 _private_dir='usr/lib64/nginx/private'
 
-. /opt/rh/gcc-toolset-15/enable
+. /opt/rh/gcc-toolset-14/enable
 
 set -euo pipefail
 
