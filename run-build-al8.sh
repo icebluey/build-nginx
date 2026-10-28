@@ -31,11 +31,15 @@ mkdir -p /tmp/_output_assets
 docker cp al8:/tmp/_output /tmp/_output_assets/
 
 ###############################################################################
-sleep 2
+sleep 10
+docker ps -a
+sleep 10
 docker stop al8 >/dev/null 2>&1 || true
-sleep 2
+sleep 60
 docker rm -f al8 >/dev/null 2>&1 || true
-sleep 2
+sleep 60
+docker ps -a
+
 if [ "$(cat /proc/cpuinfo | grep -i '^processor' | wc -l)" -gt 1 ]; then
     #docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd almalinux:8 bash
     docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al8 -itd quay.io/almalinuxorg/almalinux:8 bash
