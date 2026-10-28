@@ -31,13 +31,13 @@ docker cp al9:/tmp/_output /tmp/_output_assets/
 
 ###############################################################################
 sleep 10
-docker ls
+docker ps -a
 sleep 10
 docker stop al9 >/dev/null 2>&1 || true
 sleep 10
 docker rm -f al9 >/dev/null 2>&1 || true
 sleep 10
-docker ls
+docker ps -a
 
 if [ "$(cat /proc/cpuinfo | grep -i '^processor' | wc -l)" -gt 1 ]; then
     #docker run --cpus="$(cat /proc/cpuinfo | grep -i '^processor' | wc -l).0" --rm --name al9 -itd almalinux:9 bash
