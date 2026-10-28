@@ -387,6 +387,7 @@ _build_brotli() {
     git clone --recursive 'https://github.com/google/brotli.git' brotli
     sleep 1
     cd brotli
+    git checkout v1.2
     rm -fr .git
     ./bootstrap
     rm -fr autom4te.cache

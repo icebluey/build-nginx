@@ -211,6 +211,7 @@ _build_brotli() {
     cd "${_tmp_dir}"
     git clone --recursive 'https://github.com/google/brotli.git' brotli
     cd brotli
+    git checkout v1.2
     rm -fr .git
     if [[ -f bootstrap ]]; then
         ./bootstrap
