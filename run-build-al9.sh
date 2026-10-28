@@ -34,9 +34,9 @@ sleep 10
 docker ps -a
 sleep 10
 docker stop al9 >/dev/null 2>&1 || true
-sleep 10
+sleep 60
 docker rm -f al9 >/dev/null 2>&1 || true
-sleep 10
+sleep 60
 docker ps -a
 
 if [ "$(cat /proc/cpuinfo | grep -i '^processor' | wc -l)" -gt 1 ]; then
